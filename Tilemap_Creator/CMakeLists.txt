@@ -23,6 +23,8 @@ set(PROJECT_SOURCES
         Version.h
         About.h
         Compiler.h
+        Canvas.h
+        Canvas.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
