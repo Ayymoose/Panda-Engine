@@ -15,26 +15,14 @@
 
 #pragma once
 
-#include <QMainWindow>
-#include "About.h"
+#include "Version.h"
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#include <QApplication>
+#include <QClipboard>
+#include <QMessageBox>
 
-class MainWindow : public QMainWindow
+class About
 {
-    Q_OBJECT
-
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
-
-private slots:
-    void on_actionAbout_triggered();
-
-private:
-    Ui::MainWindow *ui;
-    About m_about;
+    void display(void) const;
 };
-

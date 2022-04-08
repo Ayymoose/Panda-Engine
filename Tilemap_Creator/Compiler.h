@@ -15,26 +15,20 @@
 
 #pragma once
 
-#include <QMainWindow>
-#include "About.h"
+// TODO: Need more macros defined to support other platforms
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
-QT_END_NAMESPACE
+#if _WIN64
+    // 64 bit build
+    #define BUILD_ARCHITECTURE "(64-bit)"
+#else
+    #define BUILD_ARCHITECTURE "(32-bit)"
+#endif
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
 
-public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
-
-private slots:
-    void on_actionAbout_triggered();
-
-private:
-    Ui::MainWindow *ui;
-    About m_about;
-};
-
+#ifdef __GNUC__
+    #define COMPILER_NAME "g++"
+    #define COMPILER_VERSION __VERSION__
+#else
+    #define COMPILER_NAME "Unknown compiler"
+    #define COMPILER_VERSION "Unknown compiler version"
+#endif
