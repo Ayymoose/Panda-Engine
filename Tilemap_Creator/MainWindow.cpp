@@ -27,10 +27,32 @@ MainWindow::MainWindow(QWidget *parent)
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
     ui->scrollArea->setWidget(&m_canvas);
 
+    ui->statusbar->addWidget(&m_zoomLabel);
+    ui->statusbar->addWidget(&m_mouseLabel);
+
+    connect(&m_canvas, &Canvas::signalUpdateMouse, this, &MainWindow::slotUpdateMouse);
+    connect(&m_canvas, &Canvas::signalUpdateZoom, this, &MainWindow::slotUpdateZoom);
     connect(&m_canvas, &Canvas::signalScrollVBar, this, &MainWindow::slotScrollVBar);
     connect(&m_canvas, &Canvas::signalScrollBars, this, &MainWindow::slotScrollBars);
     connect(this, &MainWindow::signalMoveMouseReferenceH, &m_canvas, &Canvas::slotMoveMouseReferenceH);
     connect(this, &MainWindow::signalMoveMouseReferenceV, &m_canvas, &Canvas::slotMoveMouseReferenceV);
+}
+
+void MainWindow::slotUpdateMouse(double mx, double my)
+{
+    if (mx != -1 && my != -1)
+    {
+        m_mouseLabel.setText(QString::number(mx) + ", " + QString::number(my));
+    }
+    else
+    {
+        m_mouseLabel.setText("");
+    }
+}
+
+void MainWindow::slotUpdateZoom(double zoomFactor)
+{
+    m_zoomLabel.setText("Zoom: " + QString::number(100 * zoomFactor) + '%');
 }
 
 void MainWindow::slotScrollVBar(int vscroll)
@@ -93,8 +115,6 @@ MainWindow::~MainWindow()
 void MainWindow::on_actionAbout_triggered()
 {
     m_about.display();
-    ui->scrollArea->horizontalScrollBar()->setValue(100);
-
 }
 
 

@@ -18,6 +18,7 @@
 #include <QMainWindow>
 #include "About.h"
 #include "Canvas.h"
+#include "qlabel.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -38,6 +39,8 @@ signals:
 public slots:
     void slotScrollBars(int, int);
     void slotScrollVBar(int);
+    void slotUpdateZoom(double);
+    void slotUpdateMouse(double, double);
 
 private slots:
     void on_actionAbout_triggered();
@@ -48,5 +51,7 @@ private:
     Ui::MainWindow *ui;
     About m_about;
     Canvas m_canvas;
+    QLabel m_zoomLabel;
+    QLabel m_mouseLabel;
 };
 

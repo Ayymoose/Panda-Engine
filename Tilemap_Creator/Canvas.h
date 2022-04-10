@@ -32,20 +32,24 @@ public:
 signals:
     void signalScrollBars(int, int);
     void signalScrollVBar(int);
+    void signalUpdateZoom(double);
+    void signalUpdateMouse(double, double) const;
 
 public slots:
     void slotMoveMouseReferenceH(int);
     void slotMoveMouseReferenceV(int);
 
 protected:
-    void paintEvent(QPaintEvent *event) override;
-    void wheelEvent(QWheelEvent *event) override;
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void leaveEvent(QEvent* event) override;
 private:
 
     void middleMouseScrollBars();
+    void updateMouseCoordinates(const QPointF& mouse) const;
 
     QImage m_image;
     double m_scale{1};

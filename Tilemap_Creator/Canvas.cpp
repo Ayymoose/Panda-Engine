@@ -31,6 +31,7 @@ Canvas::Canvas(QWidget *parent)
 {
     m_cursorImage.load(":/images/Images/move_all_cursor.png");
     connect(&m_mouseMoveTimer, &QTimer::timeout, this, &Canvas::middleMouseScrollBars);
+    setMouseTracking(true);
 }
 
 void Canvas::middleMouseScrollBars()
@@ -104,15 +105,40 @@ void Canvas::mousePressEvent(QMouseEvent *event)
 
 }
 
+void Canvas::leaveEvent(QEvent*)
+{
+    emit signalUpdateMouse(-1,-1);
+}
+
 void Canvas::mouseMoveEvent(QMouseEvent *event)
 {
-    m_delta = event->pos()  - m_reference;
+    if (!m_image.isNull())
+    {
+        m_delta = event->pos()  - m_reference;
+
+        updateMouseCoordinates(event->pos());
+    }
 }
 
 void Canvas::mouseReleaseEvent(QMouseEvent *)
 {
     m_middleMouseButtonHeld = false;
     m_mouseMoveTimer.stop();
+}
+
+void Canvas::updateMouseCoordinates(const QPointF& mouse) const
+{
+    auto const mx = (int)(mouse.x() / m_scale);
+    auto const my = (int)(mouse.y() / m_scale);
+
+    if (mx < m_image.width() && my < m_image.height())
+    {
+        emit signalUpdateMouse(mx, my);
+    }
+    else
+    {
+        emit signalUpdateMouse(-1,-1);
+    }
 }
 
 void Canvas::wheelEvent(QWheelEvent* event)
@@ -132,6 +158,11 @@ void Canvas::wheelEvent(QWheelEvent* event)
             {
                 m_scale = std::max(ZOOM_FACTOR, m_scale - ZOOM_FACTOR);
             }
+
+            auto const mouseCoords = mapFromGlobal(QCursor::pos());
+            updateMouseCoordinates(mouseCoords);
+
+            emit signalUpdateZoom(m_scale);
             update();
         }
         else
@@ -159,6 +190,7 @@ bool Canvas::loadImage(const QString& imagePath)
     {
         m_scale = 1;
         setMinimumSize(m_image.width(), m_image.height());
+        emit signalUpdateZoom(m_scale);
     }
     return loaded;
 }
