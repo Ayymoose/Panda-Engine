@@ -50,6 +50,11 @@ private:
 
     void middleMouseScrollBars();
     void updateMouseCoordinates(const QPointF& mouse) const;
+    void drawMouseScrollCursor(QPainter& painter);
+    void drawCanvasImage(QPainter& painter);
+    void zoomCanvasImage(int delta);
+    void scrollCanvasBars(int delta);
+    void mouseMarkerReference(const QPoint& reference);
 
     QImage m_image;
     double m_scale{1};

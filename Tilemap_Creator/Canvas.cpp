@@ -38,18 +38,15 @@ void Canvas::middleMouseScrollBars()
 {
     if (m_middleMouseButtonHeld)
     {
-        if (parentWidget())
-        {
-            // Scale by distance
-            auto const vectorLength = std::sqrt(m_delta.x() * m_delta.x() + m_delta.y() * m_delta.y());
+        // Scale by distance
+        auto const vectorLength = std::sqrt(m_delta.x() * m_delta.x() + m_delta.y() * m_delta.y());
 
-            if (vectorLength != 0)
-            {
-                auto const scale = std::min(SCALE_MAX_LENGTH, vectorLength / 2);
-                auto const dx = scale * (m_delta.x() / vectorLength);
-                auto const dy = scale * (m_delta.y() / vectorLength);
-                emit signalScrollBars(dx,dy);
-            }
+        if (vectorLength != 0)
+        {
+            auto const scale = std::min(SCALE_MAX_LENGTH, vectorLength / 2);
+            auto const dx = scale * (m_delta.x() / vectorLength);
+            auto const dy = scale * (m_delta.y() / vectorLength);
+            emit signalScrollBars(dx,dy);
         }
     }
 }
@@ -66,25 +63,41 @@ void Canvas::slotMoveMouseReferenceV(int dy)
 
 void Canvas::paintEvent(QPaintEvent*)
 {
-    QPainter painter(this);
-    painter.scale(m_scale, m_scale);
-
-
     if (!m_image.isNull())
     {
-        // TODO: Remove image in future
-        setMinimumSize(m_image.width() * m_scale, m_image.height() * m_scale);
+        QPainter painter(this);
+        painter.scale(m_scale, m_scale);
 
-        painter.drawImage(QRectF(0,0, m_image.width(), m_image.height()), m_image);
-
-        if (m_middleMouseButtonHeld)
-        {
-            auto const cursorX = (m_reference.x() / m_scale) - (m_cursorImage.width() / 2);
-            auto const cursorY = (m_reference.y() / m_scale) - (m_cursorImage.height() / 2);
-            painter.drawImage(QPointF(cursorX, cursorY), m_cursorImage);
-            update();
-        }
+        drawCanvasImage(painter);
+        // TODO: Remove once bug fixed in mainwindow
+        drawMouseScrollCursor(painter);
     }
+}
+
+void Canvas::drawCanvasImage(QPainter& painter)
+{
+    setMinimumSize(m_image.width() * m_scale, m_image.height() * m_scale);
+    painter.drawImage(QRectF(0,0, m_image.width(), m_image.height()), m_image);
+}
+
+void Canvas::drawMouseScrollCursor(QPainter& painter)
+{
+    if (m_middleMouseButtonHeld)
+    {
+        auto const cursorX = (m_reference.x() / m_scale) - (m_cursorImage.width() / 2);
+        auto const cursorY = (m_reference.y() / m_scale) - (m_cursorImage.height() / 2);
+        painter.drawImage(QPointF(cursorX, cursorY), m_cursorImage);
+        update();
+    }
+}
+
+void Canvas::mouseMarkerReference(const QPoint& reference)
+{
+    m_reference = reference;
+    m_delta = QPoint(0,0);
+    m_middleMouseButtonHeld = true;
+    m_mouseMoveTimer.start(5);
+    update();
 }
 
 void Canvas::mousePressEvent(QMouseEvent *event)
@@ -93,16 +106,11 @@ void Canvas::mousePressEvent(QMouseEvent *event)
     switch(event->button())
     {
     case Qt::MiddleButton:
-        m_reference = event->pos();
-        m_delta = QPoint(0,0);
-        m_middleMouseButtonHeld = true;
-        m_mouseMoveTimer.start(5);
-        update();
+        mouseMarkerReference(event->pos());
         break;
     default:
         break;
     }
-
 }
 
 void Canvas::leaveEvent(QEvent*)
@@ -114,13 +122,12 @@ void Canvas::mouseMoveEvent(QMouseEvent *event)
 {
     if (!m_image.isNull())
     {
-        m_delta = event->pos()  - m_reference;
-
+        m_delta = event->pos() - m_reference;
         updateMouseCoordinates(event->pos());
     }
 }
 
-void Canvas::mouseReleaseEvent(QMouseEvent *)
+void Canvas::mouseReleaseEvent(QMouseEvent*)
 {
     m_middleMouseButtonHeld = false;
     m_mouseMoveTimer.stop();
@@ -141,43 +148,50 @@ void Canvas::updateMouseCoordinates(const QPointF& mouse) const
     }
 }
 
+void Canvas::zoomCanvasImage(int delta)
+{
+    if (delta > 0)
+    {
+        // TODO: Maybe limit the maximum here
+        m_scale += ZOOM_FACTOR;
+    }
+    else
+    {
+        m_scale = std::max(ZOOM_FACTOR, m_scale - ZOOM_FACTOR);
+    }
+
+    auto const mouseCoords = mapFromGlobal(QCursor::pos());
+    updateMouseCoordinates(mouseCoords);
+
+    emit signalUpdateZoom(m_scale);
+    update();
+}
+
+void Canvas::scrollCanvasBars(int delta)
+{
+    if (delta > 0)
+    {
+        emit signalScrollVBar(-VSCROLL_INCREMENT);
+    }
+    else
+    {
+        emit signalScrollVBar(VSCROLL_INCREMENT);
+    }
+}
+
 void Canvas::wheelEvent(QWheelEvent* event)
 {
     if (!m_image.isNull())
     {
-        // Enable zooming
         if (event->modifiers() & Qt::ControlModifier)
         {
-            auto const yDelta = event->angleDelta().y();
-            if (yDelta > 0)
-            {
-                // TODO: Maybe limit the maximum here
-                m_scale += ZOOM_FACTOR;
-            }
-            else
-            {
-                m_scale = std::max(ZOOM_FACTOR, m_scale - ZOOM_FACTOR);
-            }
-
-            auto const mouseCoords = mapFromGlobal(QCursor::pos());
-            updateMouseCoordinates(mouseCoords);
-
-            emit signalUpdateZoom(m_scale);
-            update();
+            // Zoom canvas
+            zoomCanvasImage(event->angleDelta().y());
         }
         else
         {
             // Scroll the bars normally
-            auto const yDelta = event->angleDelta().y();
-            if (yDelta > 0)
-            {
-                emit signalScrollVBar(-VSCROLL_INCREMENT);
-            }
-            else
-            {
-                emit signalScrollVBar(VSCROLL_INCREMENT);
-
-            }
+            scrollCanvasBars(event->angleDelta().y());
         }
     }
 }

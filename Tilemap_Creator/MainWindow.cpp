@@ -120,6 +120,7 @@ void MainWindow::on_actionAbout_triggered()
 
 void MainWindow::on_actionLoad_image_triggered()
 {
+    // TODO: File watcher on image updated
     auto const imageFilter = "PNG (*.png)";
     auto const image = QFileDialog::getOpenFileName(this, "Load image", R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon)", imageFilter);
     if (!image.isEmpty())
