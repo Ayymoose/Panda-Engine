@@ -17,6 +17,7 @@
 
 #include <QMainWindow>
 #include "About.h"
+#include "Canvas.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -30,11 +31,22 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+signals:
+    void signalMoveMouseReferenceH(int);
+    void signalMoveMouseReferenceV(int);
+
+public slots:
+    void slotScrollBars(int, int);
+    void slotScrollVBar(int);
+
 private slots:
     void on_actionAbout_triggered();
+
+    void on_actionLoad_image_triggered();
 
 private:
     Ui::MainWindow *ui;
     About m_about;
+    Canvas m_canvas;
 };
 

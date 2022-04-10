@@ -25,6 +25,7 @@ set(PROJECT_SOURCES
         Compiler.h
         Canvas.h
         Canvas.cpp
+        Resources.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
