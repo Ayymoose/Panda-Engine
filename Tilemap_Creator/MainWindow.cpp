@@ -19,23 +19,57 @@
 #include <QString>
 #include <QScrollBar>
 
+namespace
+{
+    constexpr int DEFAULT_GRID_X = 16;
+    constexpr int DEFAULT_GRID_Y = 16;
+    constexpr int DEFAULT_ROOM_X = 16;
+    constexpr int DEFAULT_ROOM_Y = 16;
+};
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setupDefaults();
+    connectSignals();
+}
+
+void MainWindow::setupDefaults()
+{
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
     ui->scrollArea->setWidget(&m_canvas);
-
     ui->statusbar->addWidget(&m_zoomLabel);
     ui->statusbar->addWidget(&m_mouseLabel);
 
+    ui->gridXSpinBox->setValue(DEFAULT_GRID_X);
+    ui->gridYSpinBox->setValue(DEFAULT_GRID_Y);
+
+    ui->roomSizeXSpinBox->setValue(DEFAULT_ROOM_X);
+    ui->roomSizeYSpinBox->setValue(DEFAULT_ROOM_Y);
+}
+
+void MainWindow::connectSignals()
+{
     connect(&m_canvas, &Canvas::signalUpdateMouse, this, &MainWindow::slotUpdateMouse);
     connect(&m_canvas, &Canvas::signalUpdateZoom, this, &MainWindow::slotUpdateZoom);
     connect(&m_canvas, &Canvas::signalScrollVBar, this, &MainWindow::slotScrollVBar);
     connect(&m_canvas, &Canvas::signalScrollBars, this, &MainWindow::slotScrollBars);
+
+    connect(ui->gridXSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotGridXValueChanged);
+    connect(ui->gridYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotGridYValueChanged);
+    connect(ui->enableGridCheckbox, &QCheckBox::toggled, this, &MainWindow::slotEnableGrid);
+    connect(this, &MainWindow::signalEnableGrid, &m_canvas, &Canvas::slotEnableGrid);
+    connect(ui->snapToGridCheckbox, &QCheckBox::toggled, &m_canvas, &Canvas::slotSnapToGrid);
+
     connect(this, &MainWindow::signalMoveMouseReferenceH, &m_canvas, &Canvas::slotMoveMouseReferenceH);
     connect(this, &MainWindow::signalMoveMouseReferenceV, &m_canvas, &Canvas::slotMoveMouseReferenceV);
+}
+
+void MainWindow::slotEnableGrid(bool enable)
+{
+    emit signalEnableGrid(enable, ui->gridXSpinBox->value(), ui->gridYSpinBox->value());
 }
 
 void MainWindow::slotUpdateMouse(double mx, double my)

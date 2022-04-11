@@ -35,12 +35,14 @@ public:
 signals:
     void signalMoveMouseReferenceH(int);
     void signalMoveMouseReferenceV(int);
+    void signalEnableGrid(bool, int, int);
 
 public slots:
     void slotScrollBars(int, int);
     void slotScrollVBar(int);
     void slotUpdateZoom(double);
     void slotUpdateMouse(double, double);
+    void slotEnableGrid(bool);
 
 private slots:
     void on_actionAbout_triggered();
@@ -48,6 +50,10 @@ private slots:
     void on_actionLoad_image_triggered();
 
 private:
+
+    void connectSignals();
+    void setupDefaults();
+
     Ui::MainWindow *ui;
     About m_about;
     Canvas m_canvas;

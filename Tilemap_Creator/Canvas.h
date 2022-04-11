@@ -38,6 +38,10 @@ signals:
 public slots:
     void slotMoveMouseReferenceH(int);
     void slotMoveMouseReferenceV(int);
+    void slotEnableGrid(bool, int, int);
+    void slotSnapToGrid(bool);
+    void slotGridXValueChanged(int);
+    void slotGridYValueChanged(int);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -56,6 +60,8 @@ private:
     void scrollCanvasBars(int delta);
     void mouseMarkerReference(const QPoint& reference);
 
+    void drawGridLines(QPainter& painter, int gx, int gy);
+
     QImage m_image;
     double m_scale{1};
 
@@ -65,4 +71,10 @@ private:
 
     QTimer m_mouseMoveTimer;
     QImage m_cursorImage;
+
+    bool m_enableGrid{false};
+    int m_gridX{0};
+    int m_gridY{0};
+
+    bool m_snapToGrid{false};
 };

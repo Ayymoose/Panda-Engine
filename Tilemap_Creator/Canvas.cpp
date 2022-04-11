@@ -66,12 +66,45 @@ void Canvas::paintEvent(QPaintEvent*)
     if (!m_image.isNull())
     {
         QPainter painter(this);
+
         painter.scale(m_scale, m_scale);
 
         drawCanvasImage(painter);
         // TODO: Remove once bug fixed in mainwindow
-        drawMouseScrollCursor(painter);
+        if (m_middleMouseButtonHeld)
+        {
+            drawMouseScrollCursor(painter);
+        }
+
+        if (m_enableGrid)
+        {
+            drawGridLines(painter, m_gridX, m_gridY);
+        }
+
+        update();
     }
+}
+
+void Canvas::slotEnableGrid(bool enable, int gx, int gy)
+{
+    m_enableGrid = enable;
+    m_gridX = gx;
+    m_gridY = gy;
+}
+
+void Canvas::slotGridXValueChanged(int dx)
+{
+    m_gridX = dx;
+}
+
+void Canvas::slotGridYValueChanged(int dy)
+{
+    m_gridY = dy;
+}
+
+void Canvas::slotSnapToGrid(bool enable)
+{
+    m_snapToGrid = enable;
 }
 
 void Canvas::drawCanvasImage(QPainter& painter)
@@ -82,13 +115,9 @@ void Canvas::drawCanvasImage(QPainter& painter)
 
 void Canvas::drawMouseScrollCursor(QPainter& painter)
 {
-    if (m_middleMouseButtonHeld)
-    {
-        auto const cursorX = (m_reference.x() / m_scale) - (m_cursorImage.width() / 2);
-        auto const cursorY = (m_reference.y() / m_scale) - (m_cursorImage.height() / 2);
-        painter.drawImage(QPointF(cursorX, cursorY), m_cursorImage);
-        update();
-    }
+    auto const cursorX = (m_reference.x() / m_scale) - (m_cursorImage.width() / 2);
+    auto const cursorY = (m_reference.y() / m_scale) - (m_cursorImage.height() / 2);
+    painter.drawImage(QPointF(cursorX, cursorY), m_cursorImage);
 }
 
 void Canvas::mouseMarkerReference(const QPoint& reference)
@@ -102,7 +131,6 @@ void Canvas::mouseMarkerReference(const QPoint& reference)
 
 void Canvas::mousePressEvent(QMouseEvent *event)
 {
-
     switch(event->button())
     {
     case Qt::MiddleButton:
@@ -145,6 +173,24 @@ void Canvas::updateMouseCoordinates(const QPointF& mouse) const
     else
     {
         emit signalUpdateMouse(-1,-1);
+    }
+}
+
+void Canvas::drawGridLines(QPainter& painter, int gx, int gy)
+{
+    Q_ASSERT(gx);
+    Q_ASSERT(gy);
+    Q_ASSERT(!m_image.isNull());
+
+    painter.setPen(QPen(Qt::black));
+
+    for (int x=0; x < m_image.width(); x+=gx)
+    {
+        painter.drawLine(QLine(x, 0, x, m_image.height()));
+    }
+    for (int y=0; y < m_image.height(); y+=gy)
+    {
+        painter.drawLine(QLine(0, y, m_image.width(), y));
     }
 }
 
