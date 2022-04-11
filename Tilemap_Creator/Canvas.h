@@ -91,8 +91,8 @@ private:
     QImage m_cursorImage;
 
     bool m_enableGrid{false};
-    int m_gridX{0};
-    int m_gridY{0};
+    int m_gridX{CanvasDefaults::DEFAULT_GRID_X};
+    int m_gridY{CanvasDefaults::DEFAULT_GRID_Y};
 
     bool m_drawPlacementMarker{true};
     int m_roomSizeX{CanvasDefaults::DEFAULT_ROOM_X};

@@ -23,7 +23,6 @@
 Canvas::Canvas(QWidget *parent)
     : QWidget(parent)
 {
-    m_image.load(R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon\dungeon_tail_cave.png)");
     m_cursorImage.load(":/images/Images/move_all_cursor.png");
     connect(&m_mouseMoveTimer, &QTimer::timeout, this, &Canvas::middleMouseScrollBars);
     setMouseTracking(true);
@@ -88,15 +87,24 @@ void Canvas::paintEvent(QPaintEvent*)
 void Canvas::drawPlacementMarker(QPainter& painter)
 {
     auto const mouseCoords = mapFromGlobal(QCursor::pos());
-    auto const px = mouseCoords.x() / m_scale;
-    auto const py = mouseCoords.y() / m_scale;
+    auto px = (int)(mouseCoords.x() / m_scale);
+    auto py = (int)(mouseCoords.y() / m_scale);
+
+    if (m_snapToGrid)
+    {
+        px = px - (px % m_gridX);
+        py = py - (py % m_gridY);
+    }
 
     if (withinCanvasImage(px + m_roomSizeX, py + m_roomSizeY) && withinCanvasImage(px, py))
     {
         painter.setOpacity(0.5);
         painter.setBrush(QBrush(Qt::green));
+
         Q_ASSERT(m_roomSizeX);
         Q_ASSERT(m_roomSizeY);
+        Q_ASSERT(m_gridX);
+        Q_ASSERT(m_gridY);
 
         painter.drawRect(px, py, m_roomSizeX, m_roomSizeY);
     }
