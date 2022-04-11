@@ -19,16 +19,11 @@
 #include <QGuiApplication>
 #include <QScrollBar>
 
-namespace
-{
-    constexpr double ZOOM_FACTOR = 0.125f;
-    constexpr double SCALE_MAX_LENGTH = 8;
-    constexpr int VSCROLL_INCREMENT = 32;
-}
 
 Canvas::Canvas(QWidget *parent)
     : QWidget(parent)
 {
+    m_image.load(R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon\dungeon_tail_cave.png)");
     m_cursorImage.load(":/images/Images/move_all_cursor.png");
     connect(&m_mouseMoveTimer, &QTimer::timeout, this, &Canvas::middleMouseScrollBars);
     setMouseTracking(true);
@@ -43,7 +38,7 @@ void Canvas::middleMouseScrollBars()
 
         if (vectorLength != 0)
         {
-            auto const scale = std::min(SCALE_MAX_LENGTH, vectorLength / 2);
+            auto const scale = std::min(CanvasDefaults::SCALE_MAX_LENGTH, vectorLength / 2);
             auto const dx = scale * (m_delta.x() / vectorLength);
             auto const dy = scale * (m_delta.y() / vectorLength);
             emit signalScrollBars(dx,dy);
@@ -78,11 +73,39 @@ void Canvas::paintEvent(QPaintEvent*)
 
         if (m_enableGrid)
         {
-            drawGridLines(painter, m_gridX, m_gridY);
+            drawGridLines(painter);
+        }
+
+        if (m_drawPlacementMarker)
+        {
+            drawPlacementMarker(painter);
         }
 
         update();
     }
+}
+
+void Canvas::drawPlacementMarker(QPainter& painter)
+{
+    auto const mouseCoords = mapFromGlobal(QCursor::pos());
+    auto const px = mouseCoords.x() / m_scale;
+    auto const py = mouseCoords.y() / m_scale;
+
+    if (withinCanvasImage(px + m_roomSizeX, py + m_roomSizeY) && withinCanvasImage(px, py))
+    {
+        painter.setOpacity(0.5);
+        painter.setBrush(QBrush(Qt::green));
+        Q_ASSERT(m_roomSizeX);
+        Q_ASSERT(m_roomSizeY);
+
+        painter.drawRect(px, py, m_roomSizeX, m_roomSizeY);
+    }
+}
+
+bool Canvas::withinCanvasImage(int x, int y) const
+{
+    // Includes scaled co-ordinates
+    return (x >= 0 && x <= m_image.width() && y >=0 && y <= m_image.height());
 }
 
 void Canvas::slotEnableGrid(bool enable, int gx, int gy)
@@ -102,6 +125,16 @@ void Canvas::slotGridYValueChanged(int dy)
     m_gridY = dy;
 }
 
+void Canvas::slotRoomSizeXValueChanged(int rx)
+{
+    m_roomSizeX = rx;
+}
+
+void Canvas::slotRoomSizeYValueChanged(int ry)
+{
+    m_roomSizeY = ry;
+}
+
 void Canvas::slotSnapToGrid(bool enable)
 {
     m_snapToGrid = enable;
@@ -109,12 +142,14 @@ void Canvas::slotSnapToGrid(bool enable)
 
 void Canvas::drawCanvasImage(QPainter& painter)
 {
+    Q_ASSERT(!m_image.isNull());
     setMinimumSize(m_image.width() * m_scale, m_image.height() * m_scale);
     painter.drawImage(QRectF(0,0, m_image.width(), m_image.height()), m_image);
 }
 
 void Canvas::drawMouseScrollCursor(QPainter& painter)
 {
+    Q_ASSERT(!m_cursorImage.isNull());
     auto const cursorX = (m_reference.x() / m_scale) - (m_cursorImage.width() / 2);
     auto const cursorY = (m_reference.y() / m_scale) - (m_cursorImage.height() / 2);
     painter.drawImage(QPointF(cursorX, cursorY), m_cursorImage);
@@ -151,7 +186,7 @@ void Canvas::mouseMoveEvent(QMouseEvent *event)
     if (!m_image.isNull())
     {
         m_delta = event->pos() - m_reference;
-        updateMouseCoordinates(event->pos());
+        updateMouseCoordinates();
     }
 }
 
@@ -161,12 +196,13 @@ void Canvas::mouseReleaseEvent(QMouseEvent*)
     m_mouseMoveTimer.stop();
 }
 
-void Canvas::updateMouseCoordinates(const QPointF& mouse) const
+void Canvas::updateMouseCoordinates() const
 {
+    auto const mouse = mapFromGlobal(QCursor::pos());
     auto const mx = (int)(mouse.x() / m_scale);
     auto const my = (int)(mouse.y() / m_scale);
 
-    if (mx < m_image.width() && my < m_image.height())
+    if (withinCanvasImage(mx, my))
     {
         emit signalUpdateMouse(mx, my);
     }
@@ -176,19 +212,17 @@ void Canvas::updateMouseCoordinates(const QPointF& mouse) const
     }
 }
 
-void Canvas::drawGridLines(QPainter& painter, int gx, int gy)
+void Canvas::drawGridLines(QPainter& painter)
 {
-    Q_ASSERT(gx);
-    Q_ASSERT(gy);
     Q_ASSERT(!m_image.isNull());
 
     painter.setPen(QPen(Qt::black));
 
-    for (int x=0; x < m_image.width(); x+=gx)
+    for (int x=0; x < m_image.width(); x+=m_gridX)
     {
         painter.drawLine(QLine(x, 0, x, m_image.height()));
     }
-    for (int y=0; y < m_image.height(); y+=gy)
+    for (int y=0; y < m_image.height(); y+=m_gridY)
     {
         painter.drawLine(QLine(0, y, m_image.width(), y));
     }
@@ -199,30 +233,30 @@ void Canvas::zoomCanvasImage(int delta)
     if (delta > 0)
     {
         // TODO: Maybe limit the maximum here
-        m_scale += ZOOM_FACTOR;
+        m_scale += CanvasDefaults::ZOOM_FACTOR;
     }
     else
     {
-        m_scale = std::max(ZOOM_FACTOR, m_scale - ZOOM_FACTOR);
+        m_scale = std::max(CanvasDefaults::ZOOM_FACTOR, m_scale - CanvasDefaults::ZOOM_FACTOR);
     }
 
-    auto const mouseCoords = mapFromGlobal(QCursor::pos());
-    updateMouseCoordinates(mouseCoords);
+    updateMouseCoordinates();
 
     emit signalUpdateZoom(m_scale);
-    update();
 }
 
 void Canvas::scrollCanvasBars(int delta)
 {
     if (delta > 0)
     {
-        emit signalScrollVBar(-VSCROLL_INCREMENT);
+        emit signalScrollVBar(-CanvasDefaults::VSCROLL_INCREMENT);
     }
     else
     {
-        emit signalScrollVBar(VSCROLL_INCREMENT);
+        emit signalScrollVBar(CanvasDefaults::VSCROLL_INCREMENT);
     }
+
+    updateMouseCoordinates();
 }
 
 void Canvas::wheelEvent(QWheelEvent* event)
@@ -248,7 +282,7 @@ bool Canvas::loadImage(const QString& imagePath)
     bool loaded = m_image.load(imagePath);
     if (loaded)
     {
-        m_scale = 1;
+        m_scale = CanvasDefaults::DEFAULT_CANVAS_SCALE;
         setMinimumSize(m_image.width(), m_image.height());
         emit signalUpdateZoom(m_scale);
     }

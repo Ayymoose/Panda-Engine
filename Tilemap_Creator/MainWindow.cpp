@@ -19,13 +19,6 @@
 #include <QString>
 #include <QScrollBar>
 
-namespace
-{
-    constexpr int DEFAULT_GRID_X = 16;
-    constexpr int DEFAULT_GRID_Y = 16;
-    constexpr int DEFAULT_ROOM_X = 16;
-    constexpr int DEFAULT_ROOM_Y = 16;
-};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -43,11 +36,11 @@ void MainWindow::setupDefaults()
     ui->statusbar->addWidget(&m_zoomLabel);
     ui->statusbar->addWidget(&m_mouseLabel);
 
-    ui->gridXSpinBox->setValue(DEFAULT_GRID_X);
-    ui->gridYSpinBox->setValue(DEFAULT_GRID_Y);
+    ui->gridXSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_X);
+    ui->gridYSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_Y);
 
-    ui->roomSizeXSpinBox->setValue(DEFAULT_ROOM_X);
-    ui->roomSizeYSpinBox->setValue(DEFAULT_ROOM_Y);
+    ui->roomSizeXSpinBox->setValue(CanvasDefaults::DEFAULT_ROOM_X);
+    ui->roomSizeYSpinBox->setValue(CanvasDefaults::DEFAULT_ROOM_Y);
 }
 
 void MainWindow::connectSignals()
@@ -56,6 +49,9 @@ void MainWindow::connectSignals()
     connect(&m_canvas, &Canvas::signalUpdateZoom, this, &MainWindow::slotUpdateZoom);
     connect(&m_canvas, &Canvas::signalScrollVBar, this, &MainWindow::slotScrollVBar);
     connect(&m_canvas, &Canvas::signalScrollBars, this, &MainWindow::slotScrollBars);
+
+    connect(ui->roomSizeXSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotRoomSizeXValueChanged);
+    connect(ui->roomSizeYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
 
     connect(ui->gridXSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotGridXValueChanged);
     connect(ui->gridYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotGridYValueChanged);

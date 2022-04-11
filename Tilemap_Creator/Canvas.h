@@ -22,6 +22,18 @@
 #include <QScrollArea>
 #include <QTimer>
 
+namespace CanvasDefaults
+{
+    constexpr int DEFAULT_GRID_X = 16;
+    constexpr int DEFAULT_GRID_Y = 16;
+    constexpr int DEFAULT_ROOM_X = 160;
+    constexpr int DEFAULT_ROOM_Y = 128;
+    constexpr double DEFAULT_CANVAS_SCALE = 1;
+    constexpr double ZOOM_FACTOR = 0.125f;
+    constexpr double SCALE_MAX_LENGTH = 8;
+    constexpr int VSCROLL_INCREMENT = 32;
+}
+
 class Canvas : public QWidget
 {
     Q_OBJECT
@@ -42,6 +54,8 @@ public slots:
     void slotSnapToGrid(bool);
     void slotGridXValueChanged(int);
     void slotGridYValueChanged(int);
+    void slotRoomSizeXValueChanged(int);
+    void slotRoomSizeYValueChanged(int);
 
 protected:
     void paintEvent(QPaintEvent* event) override;
@@ -53,17 +67,21 @@ protected:
 private:
 
     void middleMouseScrollBars();
-    void updateMouseCoordinates(const QPointF& mouse) const;
+    void updateMouseCoordinates() const;
     void drawMouseScrollCursor(QPainter& painter);
     void drawCanvasImage(QPainter& painter);
     void zoomCanvasImage(int delta);
     void scrollCanvasBars(int delta);
     void mouseMarkerReference(const QPoint& reference);
 
-    void drawGridLines(QPainter& painter, int gx, int gy);
+    void drawGridLines(QPainter& painter);
+    void drawPlacementMarker(QPainter& painter);
+
+
+    bool withinCanvasImage(int x, int y) const;
 
     QImage m_image;
-    double m_scale{1};
+    double m_scale{CanvasDefaults::DEFAULT_CANVAS_SCALE};
 
     QPoint m_reference;
     QPoint m_delta;
@@ -75,6 +93,11 @@ private:
     bool m_enableGrid{false};
     int m_gridX{0};
     int m_gridY{0};
+
+    bool m_drawPlacementMarker{true};
+    int m_roomSizeX{CanvasDefaults::DEFAULT_ROOM_X};
+    int m_roomSizeY{CanvasDefaults::DEFAULT_ROOM_Y};
+
 
     bool m_snapToGrid{false};
 };
