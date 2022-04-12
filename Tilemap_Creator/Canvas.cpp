@@ -23,6 +23,7 @@
 Canvas::Canvas(QWidget *parent)
     : QWidget(parent)
 {
+    m_image.load(R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon\dungeon_tail_cave.png)");
     m_cursorImage.load(":/images/Images/move_all_cursor.png");
     connect(&m_mouseMoveTimer, &QTimer::timeout, this, &Canvas::middleMouseScrollBars);
     setMouseTracking(true);
@@ -80,12 +81,15 @@ void Canvas::paintEvent(QPaintEvent*)
             drawPlacementMarker(painter);
         }
 
+        drawPlacements(painter);
+
         update();
     }
 }
 
-void Canvas::drawPlacementMarker(QPainter& painter)
+QPoint Canvas::mousePositionWithinImage() const
 {
+    // Returns the mouse co-ordinates (including snapped) within the image
     auto const mouseCoords = mapFromGlobal(QCursor::pos());
     auto px = (int)(mouseCoords.x() / m_scale);
     auto py = (int)(mouseCoords.y() / m_scale);
@@ -96,10 +100,40 @@ void Canvas::drawPlacementMarker(QPainter& painter)
         py = py - (py % m_gridY);
     }
 
+    return QPoint(px, py);
+}
+
+bool Canvas::canPlaceRoom(QRect&& rect) const
+{
+    for (auto const& placementRect : m_placements)
+    {
+        if (placementRect.intersects(rect))
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+void Canvas::drawPlacementMarker(QPainter& painter)
+{
+    auto const mouseCoords = mousePositionWithinImage();
+    auto const px = mouseCoords.x();
+    auto const py = mouseCoords.y();
+
     if (withinCanvasImage(px + m_roomSizeX, py + m_roomSizeY) && withinCanvasImage(px, py))
     {
         painter.setOpacity(0.5);
-        painter.setBrush(QBrush(Qt::green));
+
+        // Red to show can't be placed, green is OK
+        if (canPlaceRoom(QRect(px, py, m_roomSizeX, m_roomSizeY)))
+        {
+            painter.setBrush(QBrush(Qt::green));
+        }
+        else
+        {
+            painter.setBrush(QBrush(Qt::red));
+        }
 
         Q_ASSERT(m_roomSizeX);
         Q_ASSERT(m_roomSizeY);
@@ -148,6 +182,18 @@ void Canvas::slotSnapToGrid(bool enable)
     m_snapToGrid = enable;
 }
 
+
+void Canvas::drawPlacements(QPainter& painter)
+{
+    painter.setOpacity(0.5);
+    painter.setBrush(QBrush(Qt::blue));
+    for (auto const& placement : m_placements)
+    {
+        painter.drawRect(placement);
+    }
+}
+
+
 void Canvas::drawCanvasImage(QPainter& painter)
 {
     Q_ASSERT(!m_image.isNull());
@@ -172,15 +218,57 @@ void Canvas::mouseMarkerReference(const QPoint& reference)
     update();
 }
 
+void Canvas::placeRoom(int rx, int ry)
+{
+    qDebug() << "Placing room at " << QPoint(rx, ry);
+
+    auto const rw = m_roomSizeX;
+    auto const rh = m_roomSizeY;
+
+    m_placements.emplace_back(rx, ry, rw, rh);
+}
+
+void Canvas::removeRoom()
+{
+    // Remove the room where the mouse is placed
+    auto const mouseCoords = mousePositionWithinImage();
+
+    for (auto it = m_placements.begin(); it != m_placements.end(); ++it)
+    {
+        if ((*it).contains(mouseCoords))
+        {
+            m_placements.erase(it);
+            return;
+        }
+    }
+}
+
 void Canvas::mousePressEvent(QMouseEvent *event)
 {
-    switch(event->button())
+    if (!m_image.isNull())
     {
-    case Qt::MiddleButton:
-        mouseMarkerReference(event->pos());
-        break;
-    default:
-        break;
+        switch(event->button())
+        {
+        case Qt::LeftButton:
+            {
+                auto const mouseCoords = mousePositionWithinImage();
+                auto mx = mouseCoords.x();
+                auto my = mouseCoords.y();
+                if (canPlaceRoom(QRect(mx, my, m_roomSizeX, m_roomSizeY)))
+                {
+                    placeRoom(mx , my);
+                }
+            }
+            break;
+        case Qt::RightButton:
+            removeRoom();
+            break;
+        case Qt::MiddleButton:
+            mouseMarkerReference(event->pos());
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -290,6 +378,7 @@ bool Canvas::loadImage(const QString& imagePath)
     bool loaded = m_image.load(imagePath);
     if (loaded)
     {
+        m_placements.clear();
         m_scale = CanvasDefaults::DEFAULT_CANVAS_SCALE;
         setMinimumSize(m_image.width(), m_image.height());
         emit signalUpdateZoom(m_scale);
