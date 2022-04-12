@@ -237,6 +237,7 @@ void Canvas::removeRoom()
     {
         if ((*it).contains(mouseCoords))
         {
+            qDebug() << "Removing room at " << *it;
             m_placements.erase(it);
             return;
         }
@@ -254,7 +255,7 @@ void Canvas::mousePressEvent(QMouseEvent *event)
                 auto const mouseCoords = mousePositionWithinImage();
                 auto mx = mouseCoords.x();
                 auto my = mouseCoords.y();
-                if (canPlaceRoom(QRect(mx, my, m_roomSizeX, m_roomSizeY)))
+                if (withinCanvasImage(mx + m_roomSizeX, my + m_roomSizeY) && canPlaceRoom(QRect(mx, my, m_roomSizeX, m_roomSizeY)))
                 {
                     placeRoom(mx , my);
                 }
