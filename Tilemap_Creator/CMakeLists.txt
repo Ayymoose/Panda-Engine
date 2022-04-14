@@ -26,6 +26,8 @@ set(PROJECT_SOURCES
         Canvas.h
         Canvas.cpp
         Resources.qrc
+        Tilemap.h
+        Tilemap.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

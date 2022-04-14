@@ -42,6 +42,9 @@ public:
     explicit Canvas(QWidget *parent = nullptr);
     bool loadImage(const QString& imagePath);
 
+    QImage canvasImage() const;
+    std::vector<QRect> placements() const;
+
 signals:
     void signalScrollBars(int, int);
     void signalScrollVBar(int);

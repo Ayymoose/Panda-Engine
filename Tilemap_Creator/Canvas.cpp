@@ -183,6 +183,16 @@ void Canvas::slotSnapToGrid(bool enable)
 }
 
 
+QImage Canvas::canvasImage() const
+{
+    return m_image;
+}
+
+std::vector<QRect> Canvas::placements() const
+{
+    return m_placements;
+}
+
 void Canvas::drawPlacements(QPainter& painter)
 {
     painter.setOpacity(0.5);

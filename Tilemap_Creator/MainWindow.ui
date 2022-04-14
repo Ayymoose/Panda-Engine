@@ -33,7 +33,7 @@
        <item>
         <widget class="QGroupBox" name="groupBox">
          <property name="title">
-          <string>Grid</string>
+          <string>Grid/Tile</string>
          </property>
          <layout class="QGridLayout" name="gridLayout">
           <item row="0" column="0">
@@ -146,18 +146,42 @@
        <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
-          <string>Level</string>
+          <string>Tilemap</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="levelSaveToEdit"/>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Map width:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QToolButton" name="saveToToolButton">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QPushButton" name="generateTilemapButton">
+            <property name="text">
+             <string>Generate tilemap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="levelNameEdit"/>
+          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_8">
             <property name="text">
              <string>Save to:</string>
             </property>
            </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="levelSaveToEdit"/>
           </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_7">
@@ -167,14 +191,14 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QPushButton" name="generateTilemapButton">
-            <property name="text">
-             <string>Generate tilemap</string>
+           <widget class="QSpinBox" name="mapWidthSpinBox">
+            <property name="maximum">
+             <number>1024</number>
+            </property>
+            <property name="singleStep">
+             <number>1</number>
             </property>
            </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="levelNameEdit"/>
           </item>
          </layout>
         </widget>
@@ -206,7 +230,7 @@
          <x>0</x>
          <y>0</y>
          <width>908</width>
-         <height>447</height>
+         <height>419</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_5"/>

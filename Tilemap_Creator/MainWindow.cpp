@@ -18,7 +18,14 @@
 #include <QFileDialog>
 #include <QString>
 #include <QScrollBar>
+#include <QDir>
+#include "Tilemap.h"
 
+namespace
+{
+    constexpr char DEFAULT_TILEMAP_NAME[] = "TILEMAP_1";
+    constexpr int DEFAULT_MAP_WIDTH = 160;
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -35,12 +42,22 @@ void MainWindow::setupDefaults()
     ui->scrollArea->setWidget(&m_canvas);
     ui->statusbar->addWidget(&m_zoomLabel);
     ui->statusbar->addWidget(&m_mouseLabel);
+    ui->statusbar->addWidget(&m_statusLabel);
 
     ui->gridXSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_X);
     ui->gridYSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_Y);
 
     ui->roomSizeXSpinBox->setValue(CanvasDefaults::DEFAULT_ROOM_X);
     ui->roomSizeYSpinBox->setValue(CanvasDefaults::DEFAULT_ROOM_Y);
+
+    ui->levelNameEdit->setText(DEFAULT_TILEMAP_NAME);
+    ui->mapWidthSpinBox->setValue(DEFAULT_MAP_WIDTH);
+
+    ui->mapWidthSpinBox->setSingleStep(ui->gridXSpinBox->value());
+
+    ui->levelSaveToEdit->setText(QDir::rootPath());
+
+    slotCheckWidget();
 }
 
 void MainWindow::connectSignals()
@@ -61,6 +78,24 @@ void MainWindow::connectSignals()
 
     connect(this, &MainWindow::signalMoveMouseReferenceH, &m_canvas, &Canvas::slotMoveMouseReferenceH);
     connect(this, &MainWindow::signalMoveMouseReferenceV, &m_canvas, &Canvas::slotMoveMouseReferenceV);
+
+    connect(ui->levelNameEdit, &QLineEdit::textChanged, this, &MainWindow::slotCheckWidget);
+    connect(ui->levelSaveToEdit, &QLineEdit::textChanged, this, &MainWindow::slotCheckWidget);
+
+}
+
+void MainWindow::slotCheckWidget()
+{
+    auto const levelName = ui->levelNameEdit->text().trimmed();
+    auto const savePath = ui->levelSaveToEdit->text().trimmed();
+    if (levelName.isEmpty() || savePath.isEmpty())
+    {
+        ui->generateTilemapButton->setEnabled(false);
+    }
+    else
+    {
+        ui->generateTilemapButton->setEnabled(true);
+    }
 }
 
 void MainWindow::slotEnableGrid(bool enable)
@@ -151,14 +186,55 @@ void MainWindow::on_actionAbout_triggered()
 void MainWindow::on_actionLoad_image_triggered()
 {
     // TODO: File watcher on image updated
+    // TODO: Support other image types
     auto const imageFilter = "PNG (*.png)";
-    auto const image = QFileDialog::getOpenFileName(this, "Load image", R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon)", imageFilter);
+    auto const image = QFileDialog::getOpenFileName(this, "Load image", QDir::currentPath(), imageFilter);
     if (!image.isEmpty())
     {
         if (!m_canvas.loadImage(image))
         {
             QMessageBox::critical(this, "Error", "Failed to load image: " + image);
         }
+    }
+}
+
+
+void MainWindow::on_generateTilemapButton_clicked()
+{
+    auto const savePath = ui->levelSaveToEdit->text().trimmed();
+    auto const placements = m_canvas.placements();
+    if (placements.size())
+    {
+        Tilemap::TilemapConfig config;
+        config.outputMapWidth = ui->mapWidthSpinBox->value();
+        config.tileX = ui->gridXSpinBox->value();
+        config.tileY = ui->gridYSpinBox->value();
+
+        auto const tileMap = Tilemap::generate(m_canvas.canvasImage(), config, placements);
+        auto const saved = tileMap.save(savePath);
+        if (!saved)
+        {
+            m_statusLabel.setText("FAILED to save generated tilemap to: " + savePath);
+        }
+        else
+        {
+            m_statusLabel.setText("SUCCESSFULLY saved generated tilemap to: " + savePath + " at " + QDateTime::currentDateTime().toString());
+        }
+    }
+    else
+    {
+        m_statusLabel.setText("No areas placed to generate tilemap");
+    }
+
+}
+
+
+void MainWindow::on_saveToToolButton_clicked()
+{
+    auto const savePath = QFileDialog::getSaveFileName(this, "Save as", QDir::currentPath());
+    if (!savePath.isEmpty())
+    {
+        ui->levelSaveToEdit->setText(savePath);
     }
 }
 

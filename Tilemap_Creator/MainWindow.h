@@ -49,6 +49,12 @@ private slots:
 
     void on_actionLoad_image_triggered();
 
+    void slotCheckWidget();
+
+    void on_generateTilemapButton_clicked();
+
+    void on_saveToToolButton_clicked();
+
 private:
 
     void connectSignals();
@@ -59,5 +65,6 @@ private:
     Canvas m_canvas;
     QLabel m_zoomLabel;
     QLabel m_mouseLabel;
+    QLabel m_statusLabel;
 };
 
