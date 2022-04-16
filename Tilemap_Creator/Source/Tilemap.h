@@ -19,7 +19,7 @@
 #include <QRect>
 #include <QtGlobal>
 #include <QByteArray>
-#include <QMap>
+#include <QHash>
 #include <QDebug>
 #include <vector>
 
@@ -35,7 +35,8 @@ public:
         size_t outputMapWidth;  // Width of output tilemap (image)
     };
 
-    using TileMap = QMap<QImage, size_t>;
+    using TileIndexMap = QHash<QImage, size_t>;
+    using MapTiles = std::vector<QImage>;
 
     struct TileArea
     {
@@ -65,12 +66,6 @@ public:
         }
     };
 
-    struct TilemapArea
-    {
-        TileMap tileMap;
-        TileArea tileArea;
-    };
-
     struct GeneratedTileMap
     {
         std::vector<TileArea> generatedAreas;
@@ -81,7 +76,7 @@ public:
     static GeneratedTileMap generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& rooms);
 
 private:
-    static TilemapArea constructTilemap(TileMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex);
+    static TileArea constructTilemap(TileIndexMap& tileIndexMap, MapTiles& mapTiles, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex);
 
 };
 

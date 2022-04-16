@@ -17,7 +17,7 @@
 #include <QPainter>
 #include <algorithm>
 
-Tilemap::TilemapArea Tilemap::constructTilemap(TileMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex)
+Tilemap::TileArea Tilemap::constructTilemap(TileIndexMap& tileIndexMap, MapTiles& mapTiles, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex)
 {
     Q_ASSERT(!sourceImage.isNull());
     Q_ASSERT(area.width() % config.tileX == 0);
@@ -40,15 +40,15 @@ Tilemap::TilemapArea Tilemap::constructTilemap(TileMap& tileMap, const QImage& s
 
             auto const sourceTile = sourceImage.copy(sourceRect);
 
-            if (!tileMap.contains(sourceTile))
+            if (!tileIndexMap.contains(sourceTile))
             {
-                tileArea.tileIndices.push_back(tileIndex);
-                tileMap[sourceTile] = tileIndex++;
+                tileIndexMap[sourceTile] = tileIndex;
+                tileArea.tileIndices.push_back(tileIndex++);
+                mapTiles.emplace_back(std::move(sourceTile));
             }
             else
             {
-                auto const indexTile = tileMap[sourceTile];
-                tileArea.tileIndices.push_back(indexTile);
+                tileArea.tileIndices.push_back(tileIndexMap[sourceTile]);
             }
 
         }
@@ -56,7 +56,7 @@ Tilemap::TilemapArea Tilemap::constructTilemap(TileMap& tileMap, const QImage& s
 
     Q_ASSERT(tileArea.tileIndices.size() == tileArea.tilesAcross * tileArea.tilesDown);
 
-    return TilemapArea{tileMap, tileArea};
+    return tileArea;
 }
 
 Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& rooms)
@@ -65,7 +65,8 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
 
     qDebug() << "Creating tilemap from " << QString::number(rooms.size()) << " areas";
 
-    TileMap tileMaps;
+    TileIndexMap tileIndexMaps;
+    MapTiles mapTiles;
     std::vector<TileArea> tileAreas;
 
     // Sort rooms first
@@ -80,12 +81,9 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     size_t tileIndex = 0;
     for (auto const& room : rooms)
     {
-        auto const [tileMap, tileArea] = constructTilemap(tileMaps, sourceImage, config, room, tileIndex);
-
+        auto tileArea = constructTilemap(tileIndexMaps, mapTiles, sourceImage, config, room, tileIndex);
         qDebug() << tileArea;
         qDebug() <<  '\n';
-
-        tileMaps.insert(tileMap);
         tileAreas.emplace_back(std::move(tileArea));
     }
 
@@ -94,7 +92,7 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     // if numTiles > numTilesPerRow -> tileHeight * ceil(numTiles / numTilesPerRow)
 
     // Now paint the output image
-    auto const numberOfTiles = tileMaps.size();
+    auto const numberOfTiles = tileIndexMaps.size();
     auto const tileX = config.tileX;
     auto const tileY = config.tileY;
     auto const mapWidth = config.outputMapWidth;
@@ -109,11 +107,10 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     size_t destX = 0;
     size_t destY = 0;
 
-    for (auto it = tileMaps.constBegin(); it != tileMaps.constEnd(); ++it)
+    for (auto const& tile : mapTiles)
     {
         auto const destPoint = QPoint(destX, destY);
         Q_ASSERT(destImage.rect().contains(destPoint));
-        auto const tile = it.key();
 
         painter.drawImage(destPoint, tile, tile.rect());
 
