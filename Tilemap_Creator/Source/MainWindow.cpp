@@ -29,6 +29,14 @@ namespace
 {
     constexpr char DEFAULT_TILEMAP_NAME[] = "TILEMAP_1";
     constexpr int DEFAULT_MAP_WIDTH = 160;
+
+    // https://stackoverflow.com/questions/3407012/rounding-up-to-the-nearest-multiple-of-a-number
+    int roundTo(int number, int multiple)
+    {
+        Q_ASSERT(number != 0);
+        Q_ASSERT(number > 0);
+        return ((number + multiple - 1) / multiple) * multiple;
+    }
 }
 
 MainWindow::MainWindow(QWidget *parent)
@@ -55,37 +63,105 @@ void MainWindow::setupDefaults()
     ui->roomSizeYSpinBox->setValue(CanvasDefaults::DEFAULT_ROOM_Y);
 
     ui->levelNameEdit->setText(DEFAULT_TILEMAP_NAME);
-    ui->mapWidthSpinBox->setValue(DEFAULT_MAP_WIDTH);
 
+    ui->mapWidthSpinBox->setValue(DEFAULT_MAP_WIDTH);
     ui->mapWidthSpinBox->setSingleStep(ui->gridXSpinBox->value());
+
+    ui->roomSizeXSpinBox->setSingleStep(ui->gridXSpinBox->value());
+    ui->roomSizeXSpinBox->setMinimum(ui->gridXSpinBox->value());
+
+    ui->roomSizeYSpinBox->setSingleStep(ui->gridYSpinBox->value());
+    ui->roomSizeYSpinBox->setMinimum(ui->gridYSpinBox->value());
 
     ui->levelSaveToEdit->setText(QDir::rootPath() + DEFAULT_TILEMAP_NAME + ".png");
 
     slotCheckWidget();
 }
 
-void MainWindow::connectSignals()
+void MainWindow::connectCanvasSignals()
 {
     connect(&m_canvas, &Canvas::signalUpdateMouse, this, &MainWindow::slotUpdateMouse);
     connect(&m_canvas, &Canvas::signalUpdateZoom, this, &MainWindow::slotUpdateZoom);
     connect(&m_canvas, &Canvas::signalScrollVBar, this, &MainWindow::slotScrollVBar);
     connect(&m_canvas, &Canvas::signalScrollBars, this, &MainWindow::slotScrollBars);
 
-    connect(ui->roomSizeXSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotRoomSizeXValueChanged);
     connect(ui->roomSizeYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
 
-    connect(ui->gridXSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotGridXValueChanged);
-    connect(ui->gridYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotGridYValueChanged);
-    connect(ui->enableGridCheckbox, &QCheckBox::toggled, this, &MainWindow::slotEnableGrid);
+    connect(this, &MainWindow::signalGridXValueChanged, &m_canvas, &Canvas::slotGridXValueChanged);
+    connect(this, &MainWindow::signalGridYValueChanged, &m_canvas, &Canvas::slotGridYValueChanged);
+
     connect(this, &MainWindow::signalEnableGrid, &m_canvas, &Canvas::slotEnableGrid);
     connect(ui->snapToGridCheckbox, &QCheckBox::toggled, &m_canvas, &Canvas::slotSnapToGrid);
 
     connect(this, &MainWindow::signalMoveMouseReferenceH, &m_canvas, &Canvas::slotMoveMouseReferenceH);
     connect(this, &MainWindow::signalMoveMouseReferenceV, &m_canvas, &Canvas::slotMoveMouseReferenceV);
 
+    connect(ui->roomSizeXSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeXValueChanged);
+    connect(this, &MainWindow::signalRoomSizeXValueChanged, &m_canvas, &Canvas::slotRoomSizeXValueChanged);
+
+    connect(ui->roomSizeYSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeYValueChanged);
+    connect(this, &MainWindow::signalRoomSizeYValueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
+}
+
+void MainWindow::connectSignals()
+{
+    connectCanvasSignals();
+
+    connect(ui->gridXSpinBox, &QSpinBox::valueChanged, this, &MainWindow::slotGridXValueChanged);
+    connect(ui->gridYSpinBox, &QSpinBox::valueChanged, this, &MainWindow::slotGridYValueChanged);
+
+    connect(ui->mapWidthSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotMapWidthValueChanged);
+    connect(ui->enableGridCheckbox, &QCheckBox::toggled, this, &MainWindow::slotEnableGrid);
     connect(ui->levelNameEdit, &QLineEdit::textChanged, this, &MainWindow::slotCheckWidget);
     connect(ui->levelSaveToEdit, &QLineEdit::textChanged, this, &MainWindow::slotCheckWidget);
 
+}
+
+void MainWindow::slotMapWidthValueChanged()
+{
+    ui->mapWidthSpinBox->setValue(roundTo(ui->mapWidthSpinBox->value(), ui->gridXSpinBox->value()));
+}
+
+
+void MainWindow::slotRoomSizeXValueChanged()
+{
+    ui->roomSizeXSpinBox->setSingleStep(ui->gridXSpinBox->value());
+    ui->roomSizeXSpinBox->setMinimum(ui->gridXSpinBox->value());
+    auto const value = ui->roomSizeXSpinBox->value();
+    ui->roomSizeXSpinBox->setValue(roundTo(value, ui->gridXSpinBox->value()));
+    emit signalRoomSizeXValueChanged(value);
+}
+
+void MainWindow::slotRoomSizeYValueChanged()
+{
+    ui->roomSizeYSpinBox->setSingleStep(ui->gridYSpinBox->value());
+    ui->roomSizeYSpinBox->setMinimum(ui->gridYSpinBox->value());
+    auto const value = ui->roomSizeYSpinBox->value();
+    ui->roomSizeYSpinBox->setValue(roundTo(value, ui->gridYSpinBox->value()));
+    emit signalRoomSizeYValueChanged(value);
+}
+
+void MainWindow::slotGridYValueChanged(int value)
+{
+    ui->roomSizeYSpinBox->setSingleStep(ui->gridYSpinBox->value());
+    ui->roomSizeYSpinBox->setMinimum(ui->gridYSpinBox->value());
+    ui->roomSizeYSpinBox->setValue(roundTo(ui->roomSizeYSpinBox->value(), ui->gridYSpinBox->value()));
+
+    emit signalGridYValueChanged(value);
+}
+
+void MainWindow::slotGridXValueChanged(int value)
+{
+    ui->mapWidthSpinBox->setSingleStep(ui->gridXSpinBox->value());
+    ui->mapWidthSpinBox->setMinimum(ui->gridXSpinBox->value());
+    ui->mapWidthSpinBox->setMaximum(ui->gridXSpinBox->value() * 64);
+    ui->mapWidthSpinBox->setValue(ui->gridXSpinBox->value() * 10);
+
+    ui->roomSizeXSpinBox->setSingleStep(ui->gridXSpinBox->value());
+    ui->roomSizeXSpinBox->setMinimum(ui->gridXSpinBox->value());
+    ui->roomSizeXSpinBox->setValue(roundTo(ui->roomSizeXSpinBox->value(), ui->gridXSpinBox->value()));
+
+    emit signalGridXValueChanged(value);
 }
 
 void MainWindow::slotCheckWidget()

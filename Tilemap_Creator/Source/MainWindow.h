@@ -36,6 +36,11 @@ signals:
     void signalMoveMouseReferenceH(int);
     void signalMoveMouseReferenceV(int);
     void signalEnableGrid(bool, int, int);
+    void signalGridXValueChanged(int);
+    void signalGridYValueChanged(int);
+    void signalRoomSizeXValueChanged(int);
+    void signalRoomSizeYValueChanged(int);
+
 
 public slots:
     void slotScrollBars(int, int);
@@ -46,18 +51,24 @@ public slots:
 
 private slots:
     void on_actionAbout_triggered();
-
     void on_actionLoad_image_triggered();
+    void on_generateTilemapButton_clicked();
+    void on_saveToToolButton_clicked();
 
     void slotCheckWidget();
+    void slotMapWidthValueChanged();
+    void slotRoomSizeXValueChanged();
+    void slotRoomSizeYValueChanged();
 
-    void on_generateTilemapButton_clicked();
-
-    void on_saveToToolButton_clicked();
+    void slotGridYValueChanged(int);
+    void slotGridXValueChanged(int);
 
 private:
 
     void connectSignals();
+
+    void connectCanvasSignals();
+
     void setupDefaults();
 
     Ui::MainWindow *ui;
