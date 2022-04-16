@@ -72,7 +72,7 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     // Sort rooms first
     // The ordering we want is such that rooms closer to (0,0) via the row they are on are inserted first
     // This will allow us to generate a tilemap with each area in the same place as on the image
-    std::sort(rooms.begin(), rooms.end(), [](const QRect& r1, const QRect r2)
+    std::sort(rooms.begin(), rooms.end(), [](const QRect& r1, const QRect& r2)
     {
         return (r1.top() < r2.top()) && (r1.left() < r2.left());
     });
@@ -96,7 +96,7 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     auto const tileX = config.tileX;
     auto const tileY = config.tileY;
     auto const mapWidth = config.outputMapWidth;
-    auto const tilesPerRow = mapWidth / tileX;
+    const qsizetype tilesPerRow = mapWidth / tileX;
     auto const mapHeight = (numberOfTiles <= tilesPerRow ? tileY : tileY * std::ceil(numberOfTiles / (float)tilesPerRow));
 
     qDebug() << QString::number(numberOfTiles) << " unique tiles in set";

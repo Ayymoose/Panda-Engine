@@ -38,6 +38,7 @@ void Canvas::middleMouseScrollBars()
 
         if (vectorLength != 0)
         {
+            // TODO: Fix scaling bug here (further away we are, the faster we should scroll)
             auto const scale = std::min(CanvasDefaults::SCALE_MAX_LENGTH, vectorLength / 2);
             auto const dx = scale * (m_delta.x() / vectorLength);
             auto const dy = scale * (m_delta.y() / vectorLength);
