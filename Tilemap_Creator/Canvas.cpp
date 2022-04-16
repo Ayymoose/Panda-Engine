@@ -105,7 +105,7 @@ QPoint Canvas::mousePositionWithinImage() const
 
 bool Canvas::canPlaceRoom(QRect&& rect) const
 {
-    for (auto const& placementRect : m_placements)
+    for (auto const& placementRect : m_rooms)
     {
         if (placementRect.intersects(rect))
         {
@@ -188,16 +188,16 @@ QImage Canvas::canvasImage() const
     return m_image;
 }
 
-std::vector<QRect> Canvas::placements() const
+Canvas::MapRooms Canvas::rooms() const
 {
-    return m_placements;
+    return m_rooms;
 }
 
 void Canvas::drawPlacements(QPainter& painter)
 {
     painter.setOpacity(0.5);
     painter.setBrush(QBrush(Qt::blue));
-    for (auto const& placement : m_placements)
+    for (auto const& placement : m_rooms)
     {
         painter.drawRect(placement);
     }
@@ -235,7 +235,7 @@ void Canvas::placeRoom(int rx, int ry)
     auto const rw = m_roomSizeX;
     auto const rh = m_roomSizeY;
 
-    m_placements.emplace_back(rx, ry, rw, rh);
+    m_rooms.emplace_back(rx, ry, rw, rh);
 }
 
 void Canvas::removeRoom()
@@ -243,12 +243,12 @@ void Canvas::removeRoom()
     // Remove the room where the mouse is placed
     auto const mouseCoords = mousePositionWithinImage();
 
-    for (auto it = m_placements.begin(); it != m_placements.end(); ++it)
+    for (auto it = m_rooms.begin(); it != m_rooms.end(); ++it)
     {
         if ((*it).contains(mouseCoords))
         {
             qDebug() << "Removing room at " << *it;
-            m_placements.erase(it);
+            m_rooms.erase(it);
             return;
         }
     }
@@ -389,7 +389,7 @@ bool Canvas::loadImage(const QString& imagePath)
     bool loaded = m_image.load(imagePath);
     if (loaded)
     {
-        m_placements.clear();
+        m_rooms.clear();
         m_scale = CanvasDefaults::DEFAULT_CANVAS_SCALE;
         setMinimumSize(m_image.width(), m_image.height());
         emit signalUpdateZoom(m_scale);

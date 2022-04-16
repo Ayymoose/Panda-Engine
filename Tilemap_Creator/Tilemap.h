@@ -18,7 +18,7 @@
 #include <QImage>
 #include <QRect>
 #include <QtGlobal>
-#include <QPainter>
+#include <QByteArray>
 #include <QHash>
 #include <QDebug>
 #include <vector>
@@ -36,11 +36,11 @@ public:
     };
 
     // Create's a tilemap from sourceImage using config and areas
-    static QImage generate(const QImage& sourceImage, const TilemapConfig& config, const std::vector<QRect>& areas);
+    static QImage generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& areas);
 
 private:
 
-    using TileHashMap = QHash<QImage, size_t>;
+    using TileMap = QHash<QImage, size_t>;
 
     struct TileArea
     {
@@ -70,14 +70,15 @@ private:
 
     struct TilemapArea
     {
-        TileHashMap tileHashMap;
+        TileMap tileMap;
         TileArea tileArea;
     };
 
-    static TilemapArea constructTilemap(TileHashMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex);
+    static TilemapArea constructTilemap(TileMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex);
 
 
 };
+
 
 // Hash the byte array of the QImage
 inline uint qHash(const QImage& key)

@@ -202,15 +202,15 @@ void MainWindow::on_actionLoad_image_triggered()
 void MainWindow::on_generateTilemapButton_clicked()
 {
     auto const savePath = ui->levelSaveToEdit->text().trimmed();
-    auto const placements = m_canvas.placements();
-    if (placements.size())
+    auto rooms = m_canvas.rooms();
+    if (rooms.size())
     {
         Tilemap::TilemapConfig config;
         config.outputMapWidth = ui->mapWidthSpinBox->value();
         config.tileX = ui->gridXSpinBox->value();
         config.tileY = ui->gridYSpinBox->value();
 
-        auto const tileMap = Tilemap::generate(m_canvas.canvasImage(), config, placements);
+        auto const tileMap = Tilemap::generate(m_canvas.canvasImage(), config, rooms);
         auto const saved = tileMap.save(savePath);
         if (!saved)
         {

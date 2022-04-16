@@ -20,6 +20,7 @@
 #include <QWheelEvent>
 #include <QMouseEvent>
 #include <QScrollArea>
+#include <set>
 #include <QTimer>
 #include <vector>
 
@@ -43,7 +44,10 @@ public:
     bool loadImage(const QString& imagePath);
 
     QImage canvasImage() const;
-    std::vector<QRect> placements() const;
+
+    using MapRooms = std::vector<QRect>;
+
+    MapRooms rooms() const;
 
 signals:
     void signalScrollBars(int, int);
@@ -110,8 +114,10 @@ private:
     int m_roomSizeX{CanvasDefaults::DEFAULT_ROOM_X};
     int m_roomSizeY{CanvasDefaults::DEFAULT_ROOM_Y};
 
-    std::vector<QRect> m_placements;
+
+    MapRooms m_rooms;
 
 
     bool m_snapToGrid{false};
 };
+

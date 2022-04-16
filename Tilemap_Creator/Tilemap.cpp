@@ -14,8 +14,10 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Tilemap.h"
+#include <QPainter>
+#include <algorithm>
 
-Tilemap::TilemapArea Tilemap::constructTilemap(TileHashMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex)
+Tilemap::TilemapArea Tilemap::constructTilemap(TileMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex)
 {
     Q_ASSERT(!sourceImage.isNull());
     Q_ASSERT(area.width() % config.tileX == 0);
@@ -57,20 +59,28 @@ Tilemap::TilemapArea Tilemap::constructTilemap(TileHashMap& tileMap, const QImag
     return TilemapArea{tileMap, tileArea};
 }
 
-QImage Tilemap::generate(const QImage& sourceImage, const TilemapConfig& config, const std::vector<QRect>& areas)
+QImage Tilemap::generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& rooms)
 {
     Q_ASSERT(!sourceImage.isNull());
 
-    qDebug() << "Creating tilemap from " << QString::number(areas.size()) << " areas";
+    qDebug() << "Creating tilemap from " << QString::number(rooms.size()) << " areas";
 
-    TileHashMap tileMaps;
+    TileMap tileMaps;
     std::vector<TileArea> tileAreas;
+
+    // Sort rooms first
+    // The ordering we want is such that rooms closer to (0,0) via the row they are on are inserted first
+    // This will allow us to generate a tilemap with each area in the same place as on the image
+    std::sort(rooms.begin(), rooms.end(), [](const QRect& r1, const QRect r2)
+    {
+        return (r1.top() < r2.top()) && (r1.left() < r2.left());
+    });
 
     // Construct the tile set from all the areas
     size_t tileIndex = 0;
-    for (auto const& area : areas)
+    for (auto const& room : rooms)
     {
-        auto const [tileMap, tileArea] = constructTilemap(tileMaps, sourceImage, config, area, tileIndex);
+        auto const [tileMap, tileArea] = constructTilemap(tileMaps, sourceImage, config, room, tileIndex);
 
         qDebug() << tileArea;
         qDebug() <<  '\n';
