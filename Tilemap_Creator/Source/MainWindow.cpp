@@ -61,7 +61,8 @@ void MainWindow::setupDefaults()
     ui->scrollArea->setWidget(&m_canvas);
     ui->statusbar->addWidget(&m_zoomLabel);
     ui->statusbar->addWidget(&m_mouseLabel);
-    ui->statusbar->addWidget(&m_statusLabel);
+    ui->statusbar->addWidget(&m_dimensionLabel);
+    ui->statusbar->addPermanentWidget(&m_statusLabel);
 
     ui->gridXSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_X);
     ui->gridYSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_Y);
@@ -282,9 +283,14 @@ void MainWindow::on_actionLoad_image_triggered()
         {
             QMessageBox::critical(this, "Error", "Failed to load image: " + image);
             setWindowTitle(applicationName());
+            m_dimensionLabel.setText("");
         }
         else
         {
+            m_dimensionLabel.setText("(WxH) " +
+                                     QString::number(m_canvas.canvasImage().width()) +
+                                     ',' +
+                                     QString::number(m_canvas.canvasImage().height()));
             setWindowTitle(applicationName() + " - " + image);
         }
     }
@@ -338,8 +344,8 @@ void MainWindow::on_generateTilemapButton_clicked()
     {
         status += "No areas placed to generate tilemap";
     }
-    m_statusLabel.setText(status);
 
+    m_statusLabel.setText(status);
 }
 
 

@@ -78,5 +78,6 @@ private:
     QLabel m_zoomLabel;
     QLabel m_mouseLabel;
     QLabel m_statusLabel;
+    QLabel m_dimensionLabel;
 };
 
