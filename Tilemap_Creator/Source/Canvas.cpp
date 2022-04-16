@@ -24,7 +24,7 @@ Canvas::Canvas(QWidget *parent)
     : QWidget(parent)
 {
     m_image.load(R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon\dungeon_tail_cave.png)");
-    m_cursorImage.load(":/images/Images/move_all_cursor.png");
+    m_cursorImage.load(":/Images/move_all_cursor.png");
     connect(&m_mouseMoveTimer, &QTimer::timeout, this, &Canvas::middleMouseScrollBars);
     setMouseTracking(true);
 }

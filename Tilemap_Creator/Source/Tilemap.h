@@ -19,7 +19,7 @@
 #include <QRect>
 #include <QtGlobal>
 #include <QByteArray>
-#include <QHash>
+#include <QMap>
 #include <QDebug>
 #include <vector>
 
@@ -35,7 +35,7 @@ public:
         size_t outputMapWidth;  // Width of output tilemap (image)
     };
 
-    using TileMap = QHash<QImage, size_t>;
+    using TileMap = QMap<QImage, size_t>;
 
     struct TileArea
     {

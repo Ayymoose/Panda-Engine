@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/images">
+    <qresource prefix="/">
         <file>Images/move_all_cursor.png</file>
     </qresource>
 </RCC>
