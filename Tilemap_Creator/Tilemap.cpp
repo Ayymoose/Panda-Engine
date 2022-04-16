@@ -59,7 +59,7 @@ Tilemap::TilemapArea Tilemap::constructTilemap(TileMap& tileMap, const QImage& s
     return TilemapArea{tileMap, tileArea};
 }
 
-QImage Tilemap::generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& rooms)
+Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& rooms)
 {
     Q_ASSERT(!sourceImage.isNull());
 
@@ -128,5 +128,5 @@ QImage Tilemap::generate(const QImage& sourceImage, const TilemapConfig& config,
         }
     }
 
-    return destImage;
+    return GeneratedTileMap{tileAreas, destImage};
 }

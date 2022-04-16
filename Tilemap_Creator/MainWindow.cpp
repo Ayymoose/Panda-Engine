@@ -19,7 +19,11 @@
 #include <QString>
 #include <QScrollBar>
 #include <QDir>
+#include <QFileInfo>
 #include "Tilemap.h"
+#include "CodeGenerator.h"
+#include "CppCodeGenerator.h"
+#include <memory>
 
 namespace
 {
@@ -55,7 +59,7 @@ void MainWindow::setupDefaults()
 
     ui->mapWidthSpinBox->setSingleStep(ui->gridXSpinBox->value());
 
-    ui->levelSaveToEdit->setText(QDir::rootPath());
+    ui->levelSaveToEdit->setText(QDir::rootPath() + DEFAULT_TILEMAP_NAME + ".png");
 
     slotCheckWidget();
 }
@@ -203,6 +207,8 @@ void MainWindow::on_generateTilemapButton_clicked()
 {
     auto const savePath = ui->levelSaveToEdit->text().trimmed();
     auto rooms = m_canvas.rooms();
+    QString status;
+
     if (rooms.size())
     {
         Tilemap::TilemapConfig config;
@@ -210,21 +216,41 @@ void MainWindow::on_generateTilemapButton_clicked()
         config.tileX = ui->gridXSpinBox->value();
         config.tileY = ui->gridYSpinBox->value();
 
-        auto const tileMap = Tilemap::generate(m_canvas.canvasImage(), config, rooms);
-        auto const saved = tileMap.save(savePath);
-        if (!saved)
+        auto const& [generatedAreas, generatedTileMap] = Tilemap::generate(m_canvas.canvasImage(), config, rooms);
+        auto const generatedCodeFilePath = QFileInfo(savePath).path() + DEFAULT_TILEMAP_NAME + ".txt";
+        auto generatedCodeFile = QFile(generatedCodeFilePath);
+
+        // TODO: Have SUCCESSFULLY appear in green color and FAILED in red
+        if (generatedCodeFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
-            m_statusLabel.setText("FAILED to save generated tilemap to: " + savePath);
+            QTextStream out(&generatedCodeFile);
+            std::unique_ptr<CodeGenerator> codeGenerator = std::make_unique<CppCodeGenerator>();
+            codeGenerator->generate(out, generatedAreas);
+            generatedCodeFile.close();
+            status += "SUCCESSFULLY saved generated code to: " + generatedCodeFilePath;
+            status += '\t';
         }
         else
         {
-            m_statusLabel.setText("SUCCESSFULLY saved generated tilemap to: " + savePath + " at " + QDateTime::currentDateTime().toString());
+            status += "FAILED to save generated code to: " + generatedCodeFilePath;
+            status += '\t';
+        }
+
+        auto const saved = generatedTileMap.save(savePath);
+        if (!saved)
+        {
+            status += "FAILED to save generated tilemap to: " + savePath;
+        }
+        else
+        {
+            status += "SUCCESSFULLY saved generated tilemap to: " + savePath;
         }
     }
     else
     {
-        m_statusLabel.setText("No areas placed to generate tilemap");
+        status += "No areas placed to generate tilemap";
     }
+    m_statusLabel.setText(status);
 
 }
 

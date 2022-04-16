@@ -35,11 +35,6 @@ public:
         size_t outputMapWidth;  // Width of output tilemap (image)
     };
 
-    // Create's a tilemap from sourceImage using config and areas
-    static QImage generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& areas);
-
-private:
-
     using TileMap = QHash<QImage, size_t>;
 
     struct TileArea
@@ -57,9 +52,11 @@ private:
                 dbg << '[';
                 for (size_t tx = 0; tx < tileArea.tilesAcross-1; ++tx)
                 {
+                    Q_ASSERT(index < tileArea.tileIndices.size());
                     dbg << tileArea.tileIndices[index++];
                     dbg << ',';
                 }
+                Q_ASSERT(index < tileArea.tileIndices.size());
                 dbg << tileArea.tileIndices[index++];
                 dbg << ']';
                 dbg << '\n';
@@ -74,8 +71,17 @@ private:
         TileArea tileArea;
     };
 
-    static TilemapArea constructTilemap(TileMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex);
+    struct GeneratedTileMap
+    {
+        std::vector<TileArea> generatedAreas;
+        QImage generatedTileMap;
+    };
 
+    // Create's a tilemap from sourceImage using config and areas
+    static GeneratedTileMap generate(const QImage& sourceImage, const TilemapConfig& config, std::vector<QRect>& rooms);
+
+private:
+    static TilemapArea constructTilemap(TileMap& tileMap, const QImage& sourceImage, const TilemapConfig& config, const QRect& area, size_t& tileIndex);
 
 };
 

@@ -28,6 +28,9 @@ set(PROJECT_SOURCES
         Resources.qrc
         Tilemap.h
         Tilemap.cpp
+        CodeGenerator.h
+        CppCodeGenerator.h
+        CppCodeGenerator.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
