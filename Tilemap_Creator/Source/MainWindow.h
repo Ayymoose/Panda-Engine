@@ -31,6 +31,7 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    QString applicationName() const;
 
 signals:
     void signalMoveMouseReferenceH(int);

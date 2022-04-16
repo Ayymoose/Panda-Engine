@@ -15,6 +15,8 @@
 
 #include "MainWindow.h"
 #include "./ui_MainWindow.h"
+#include "Version.h"
+#include "Compiler.h"
 #include <QFileDialog>
 #include <QString>
 #include <QScrollBar>
@@ -46,6 +48,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setupDefaults();
     connectSignals();
+}
+
+QString MainWindow::applicationName() const
+{
+    return APPLICATION_NAME " " BUILD_VERSION " " BUILD_ARCHITECTURE;
 }
 
 void MainWindow::setupDefaults()
@@ -274,6 +281,11 @@ void MainWindow::on_actionLoad_image_triggered()
         if (!m_canvas.loadImage(image))
         {
             QMessageBox::critical(this, "Error", "Failed to load image: " + image);
+            setWindowTitle(applicationName());
+        }
+        else
+        {
+            setWindowTitle(applicationName() + " - " + image);
         }
     }
 }

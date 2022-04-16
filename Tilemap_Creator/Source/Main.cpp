@@ -14,16 +14,13 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "MainWindow.h"
-#include "Version.h"
-#include "Compiler.h"
-
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    w.setWindowTitle(APPLICATION_NAME " " BUILD_VERSION " " BUILD_ARCHITECTURE);
+    w.setWindowTitle(w.applicationName());
     w.show();
     return a.exec();
 }
