@@ -31,6 +31,8 @@ set(PROJECT_SOURCES
         CodeGenerator.h
         CppCodeGenerator.h
         CppCodeGenerator.cpp
+        RoomLink.h
+        RoomLink.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

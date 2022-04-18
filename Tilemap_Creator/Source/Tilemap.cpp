@@ -107,6 +107,8 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     size_t destX = 0;
     size_t destY = 0;
 
+    // TODO: Add meaningful messages to asserts
+
     for (auto const& tile : mapTiles)
     {
         auto const destPoint = QPoint(destX, destY);
