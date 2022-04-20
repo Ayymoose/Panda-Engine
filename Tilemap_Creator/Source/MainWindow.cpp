@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent)
     setupCanvas();
     setupToolbar();
     setupStatusBar();
-    connectSignals();
+    setupMainWindow();
     setupDefaults();
     slotCheckWidget();
 }
@@ -86,6 +86,31 @@ void MainWindow::setupCanvas()
 {
     ui->scrollArea->setBackgroundRole(QPalette::Dark);
     ui->scrollArea->setWidget(&m_canvas);
+
+    connect(&m_canvas, &Canvas::signalUpdateMouse, this, &MainWindow::slotUpdateMouse);
+    connect(&m_canvas, &Canvas::signalUpdateZoom, this, &MainWindow::slotUpdateZoom);
+    connect(&m_canvas, &Canvas::signalScrollVBar, this, &MainWindow::slotScrollVBar);
+    connect(&m_canvas, &Canvas::signalScrollBars, this, &MainWindow::slotScrollBars);
+
+    connect(ui->roomSizeYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
+
+    connect(this, &MainWindow::signalGridXValueChanged, &m_canvas, &Canvas::slotGridXValueChanged);
+    connect(this, &MainWindow::signalGridYValueChanged, &m_canvas, &Canvas::slotGridYValueChanged);
+
+    connect(this, &MainWindow::signalEnableGrid, &m_canvas, &Canvas::slotEnableGrid);
+    connect(ui->snapToGridCheckbox, &QCheckBox::toggled, &m_canvas, &Canvas::slotSnapToGrid);
+
+    connect(this, &MainWindow::signalMoveMouseReferenceH, &m_canvas, &Canvas::slotMoveMouseReferenceH);
+    connect(this, &MainWindow::signalMoveMouseReferenceV, &m_canvas, &Canvas::slotMoveMouseReferenceV);
+
+    connect(ui->roomSizeXSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeXValueChanged);
+    connect(this, &MainWindow::signalRoomSizeXValueChanged, &m_canvas, &Canvas::slotRoomSizeXValueChanged);
+
+    connect(ui->roomSizeYSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeYValueChanged);
+    connect(this, &MainWindow::signalRoomSizeYValueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
+
+    connect(this, &MainWindow::signalEnablePlaceRooms, &m_canvas, &Canvas::slotEnablePlaceRooms);
+    connect(this, &MainWindow::signalEnableLinkRooms, &m_canvas, &Canvas::slotEnableLinkRooms);
 }
 
 void MainWindow::setupStatusBar()
@@ -123,38 +148,9 @@ void MainWindow::slotPlaceRoomsToggled(bool enablePlaceRooms)
     emit signalEnablePlaceRooms(enablePlaceRooms);
 }
 
-void MainWindow::connectCanvasSignals()
+
+void MainWindow::setupMainWindow()
 {
-    connect(&m_canvas, &Canvas::signalUpdateMouse, this, &MainWindow::slotUpdateMouse);
-    connect(&m_canvas, &Canvas::signalUpdateZoom, this, &MainWindow::slotUpdateZoom);
-    connect(&m_canvas, &Canvas::signalScrollVBar, this, &MainWindow::slotScrollVBar);
-    connect(&m_canvas, &Canvas::signalScrollBars, this, &MainWindow::slotScrollBars);
-
-    connect(ui->roomSizeYSpinBox, &QSpinBox::valueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
-
-    connect(this, &MainWindow::signalGridXValueChanged, &m_canvas, &Canvas::slotGridXValueChanged);
-    connect(this, &MainWindow::signalGridYValueChanged, &m_canvas, &Canvas::slotGridYValueChanged);
-
-    connect(this, &MainWindow::signalEnableGrid, &m_canvas, &Canvas::slotEnableGrid);
-    connect(ui->snapToGridCheckbox, &QCheckBox::toggled, &m_canvas, &Canvas::slotSnapToGrid);
-
-    connect(this, &MainWindow::signalMoveMouseReferenceH, &m_canvas, &Canvas::slotMoveMouseReferenceH);
-    connect(this, &MainWindow::signalMoveMouseReferenceV, &m_canvas, &Canvas::slotMoveMouseReferenceV);
-
-    connect(ui->roomSizeXSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeXValueChanged);
-    connect(this, &MainWindow::signalRoomSizeXValueChanged, &m_canvas, &Canvas::slotRoomSizeXValueChanged);
-
-    connect(ui->roomSizeYSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeYValueChanged);
-    connect(this, &MainWindow::signalRoomSizeYValueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
-
-    connect(this, &MainWindow::signalEnablePlaceRooms, &m_canvas, &Canvas::slotEnablePlaceRooms);
-    connect(this, &MainWindow::signalEnableLinkRooms, &m_canvas, &Canvas::slotEnableLinkRooms);
-}
-
-void MainWindow::connectSignals()
-{
-    connectCanvasSignals();
-
     connect(ui->gridXSpinBox, &QSpinBox::valueChanged, this, &MainWindow::slotGridXValueChanged);
     connect(ui->gridYSpinBox, &QSpinBox::valueChanged, this, &MainWindow::slotGridYValueChanged);
 
@@ -224,6 +220,12 @@ void MainWindow::slotCheckWidget()
     {
         ui->generateTilemapButton->setEnabled(true);
     }
+}
+
+void MainWindow::setLimitsFromImage(const QImage& image)
+{
+    ui->roomSizeXSpinBox->setMaximum(image.width());
+    ui->roomSizeYSpinBox->setMaximum(image.height());
 }
 
 void MainWindow::slotEnableGrid(bool enable)
@@ -332,6 +334,7 @@ void MainWindow::on_actionLoad_image_triggered()
                                      ',' +
                                      QString::number(m_canvas.canvasImage().height()));
             setWindowTitle(applicationName() + " - " + image);
+            setLimitsFromImage(QImage(image));
         }
     }
 }

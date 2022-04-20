@@ -77,14 +77,13 @@ private slots:
 
 private:
 
-    void connectSignals();
-
-    void connectCanvasSignals();
-
     void setupDefaults();
     void setupCanvas();
     void setupStatusBar();
     void setupToolbar();
+    void setupMainWindow();
+
+    void setLimitsFromImage(const QImage& image);
 
     Ui::MainWindow *ui;
     About m_about;
