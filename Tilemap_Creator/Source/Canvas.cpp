@@ -504,7 +504,12 @@ void Canvas::slotPlaceAllRooms()
                 }
             }
         }
-
-
+        recalculateRoomLinks();
     }
+}
+
+void Canvas::slotClearAllRooms()
+{
+    m_rooms.clear();
+    recalculateRoomLinks();
 }

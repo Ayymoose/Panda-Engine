@@ -49,6 +49,7 @@ signals:
     void signalEnablePlaceRooms(bool);
     void signalEnableLinkRooms(bool);
     void signalPlaceAllRooms();
+    void signalClearAllRooms();
 
 
 public slots:
@@ -76,6 +77,8 @@ private slots:
 
     void slotPlaceRoomsToggled(bool);
     void slotLinkRoomsToggled(bool);
+
+    void on_actionClear_all_rooms_triggered();
 
 private:
 

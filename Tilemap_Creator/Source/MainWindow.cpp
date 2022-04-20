@@ -116,6 +116,7 @@ void MainWindow::setupCanvas()
     connect(this, &MainWindow::signalEnableLinkRooms, &m_canvas, &Canvas::slotEnableLinkRooms);
 
     connect(this, &MainWindow::signalPlaceAllRooms, &m_canvas, &Canvas::slotPlaceAllRooms);
+    connect(this, &MainWindow::signalClearAllRooms, &m_canvas, &Canvas::slotClearAllRooms);
 }
 
 void MainWindow::setupStatusBar()
@@ -414,4 +415,8 @@ void MainWindow::on_actionPlace_all_rooms_triggered()
     emit signalPlaceAllRooms();
 }
 
+void MainWindow::on_actionClear_all_rooms_triggered()
+{
+    emit signalClearAllRooms();
+}
 
