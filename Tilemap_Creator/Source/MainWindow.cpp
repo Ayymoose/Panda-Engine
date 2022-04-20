@@ -17,14 +17,17 @@
 #include "./ui_MainWindow.h"
 #include "Version.h"
 #include "Compiler.h"
+#include "Tilemap.h"
+#include "CodeGenerator.h"
+#include "CppCodeGenerator.h"
+
 #include <QFileDialog>
 #include <QString>
 #include <QScrollBar>
 #include <QDir>
 #include <QFileInfo>
-#include "Tilemap.h"
-#include "CodeGenerator.h"
-#include "CppCodeGenerator.h"
+#include <QMessageBox>
+
 #include <memory>
 
 namespace
@@ -360,6 +363,7 @@ void MainWindow::on_generateTilemapButton_clicked()
         // TODO: Have SUCCESSFULLY appear in green color and FAILED in red
         if (generatedCodeFile.open(QIODevice::WriteOnly | QIODevice::Text))
         {
+            // TODO: Have option to select code generator
             QTextStream out(&generatedCodeFile);
             std::unique_ptr<CodeGenerator> codeGenerator = std::make_unique<CppCodeGenerator>();
             codeGenerator->generate(out, generatedAreas);

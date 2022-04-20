@@ -20,9 +20,14 @@
 #include <QWheelEvent>
 #include <QMouseEvent>
 #include <QScrollArea>
-#include <set>
 #include <QTimer>
+#include <QImage>
+#include <QPoint>
+#include <QRect>
+#include <QPainter>
+
 #include <vector>
+
 #include "RoomLink.h"
 
 namespace CanvasDefaults

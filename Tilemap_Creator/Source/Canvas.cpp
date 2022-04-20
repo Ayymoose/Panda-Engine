@@ -14,7 +14,6 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "Canvas.h"
-#include <QPainter>
 #include <QtGlobal>
 #include <QGuiApplication>
 #include <QScrollBar>

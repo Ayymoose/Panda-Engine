@@ -19,6 +19,7 @@
 #include <QAction>
 #include <QLabel>
 #include <QString>
+#include <QWidget>
 
 #include "About.h"
 #include "Canvas.h"

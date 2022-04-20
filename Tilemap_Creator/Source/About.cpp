@@ -15,6 +15,9 @@
 
 #include "About.h"
 #include "Compiler.h"
+#include <QApplication>
+#include <QClipboard>
+#include <QMessageBox>
 
 void About::display() const
 {

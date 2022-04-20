@@ -17,10 +17,6 @@
 
 #include "Version.h"
 
-#include <QApplication>
-#include <QClipboard>
-#include <QMessageBox>
-
 class About
 {
 public:
