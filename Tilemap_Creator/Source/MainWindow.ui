@@ -106,15 +106,8 @@
           <string>Room</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Room size X:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="roomSizeYSpinBox">
+          <item row="0" column="2">
+           <widget class="QSpinBox" name="roomSizeXSpinBox">
             <property name="minimum">
              <number>1</number>
             </property>
@@ -123,15 +116,22 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_6">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_5">
             <property name="text">
-             <string>Room size Y:</string>
+             <string>Size X:</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="roomSizeXSpinBox">
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_6">
+            <property name="text">
+             <string>Size Y:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QSpinBox" name="roomSizeYSpinBox">
             <property name="minimum">
              <number>1</number>
             </property>
@@ -230,7 +230,7 @@
          <x>0</x>
          <y>0</y>
          <width>908</width>
-         <height>419</height>
+         <height>407</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout_5"/>
@@ -263,10 +263,32 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuOperations">
+    <property name="title">
+     <string>Operations</string>
+    </property>
+    <addaction name="actionPlace_all_rooms"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuOperations"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="separator"/>
+  </widget>
   <action name="actionAbout">
    <property name="text">
     <string>About</string>
@@ -275,6 +297,11 @@
   <action name="actionLoad_image">
    <property name="text">
     <string>Load image</string>
+   </property>
+  </action>
+  <action name="actionPlace_all_rooms">
+   <property name="text">
+    <string>Place all rooms</string>
    </property>
   </action>
  </widget>

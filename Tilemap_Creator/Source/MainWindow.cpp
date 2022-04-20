@@ -46,8 +46,12 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setupDefaults();
+    setupCanvas();
+    setupToolbar();
+    setupStatusBar();
     connectSignals();
+    setupDefaults();
+    slotCheckWidget();
 }
 
 QString MainWindow::applicationName() const
@@ -57,13 +61,6 @@ QString MainWindow::applicationName() const
 
 void MainWindow::setupDefaults()
 {
-    ui->scrollArea->setBackgroundRole(QPalette::Dark);
-    ui->scrollArea->setWidget(&m_canvas);
-    ui->statusbar->addWidget(&m_zoomLabel);
-    ui->statusbar->addWidget(&m_mouseLabel);
-    ui->statusbar->addWidget(&m_dimensionLabel);
-    ui->statusbar->addPermanentWidget(&m_statusLabel);
-
     ui->gridXSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_X);
     ui->gridYSpinBox->setValue(CanvasDefaults::DEFAULT_GRID_Y);
 
@@ -83,7 +80,47 @@ void MainWindow::setupDefaults()
 
     ui->levelSaveToEdit->setText(QDir::rootPath() + DEFAULT_TILEMAP_NAME + ".png");
 
-    slotCheckWidget();
+}
+
+void MainWindow::setupCanvas()
+{
+    ui->scrollArea->setBackgroundRole(QPalette::Dark);
+    ui->scrollArea->setWidget(&m_canvas);
+}
+
+void MainWindow::setupStatusBar()
+{
+    ui->statusbar->addWidget(&m_zoomLabel);
+    ui->statusbar->addWidget(&m_mouseLabel);
+    ui->statusbar->addWidget(&m_dimensionLabel);
+    ui->statusbar->addPermanentWidget(&m_statusLabel);
+}
+
+void MainWindow::setupToolbar()
+{
+    m_placeRoomsAction.setIcon(QPixmap(":/Images/cursor.svg"));
+    m_placeRoomsAction.setToolTip("Place rooms");
+    m_placeRoomsAction.setCheckable(true);
+
+    m_linkRoomsAction.setIcon(QPixmap(":/Images/link.svg"));
+    m_linkRoomsAction.setToolTip("Link rooms");
+    m_linkRoomsAction.setCheckable(true);
+
+    connect(&m_placeRoomsAction, &QAction::toggled, this, &MainWindow::slotPlaceRoomsToggled);
+    connect(&m_linkRoomsAction, &QAction::toggled, this, &MainWindow::slotLinkRoomsToggled);
+
+    ui->toolBar->addAction(&m_placeRoomsAction);
+    ui->toolBar->addAction(&m_linkRoomsAction);
+}
+
+void MainWindow::slotLinkRoomsToggled(bool enableLinkRooms)
+{
+    emit signalEnableLinkRooms(enableLinkRooms);
+}
+
+void MainWindow::slotPlaceRoomsToggled(bool enablePlaceRooms)
+{
+    emit signalEnablePlaceRooms(enablePlaceRooms);
 }
 
 void MainWindow::connectCanvasSignals()
@@ -109,6 +146,9 @@ void MainWindow::connectCanvasSignals()
 
     connect(ui->roomSizeYSpinBox, &QSpinBox::editingFinished, this, &MainWindow::slotRoomSizeYValueChanged);
     connect(this, &MainWindow::signalRoomSizeYValueChanged, &m_canvas, &Canvas::slotRoomSizeYValueChanged);
+
+    connect(this, &MainWindow::signalEnablePlaceRooms, &m_canvas, &Canvas::slotEnablePlaceRooms);
+    connect(this, &MainWindow::signalEnableLinkRooms, &m_canvas, &Canvas::slotEnableLinkRooms);
 }
 
 void MainWindow::connectSignals()
@@ -357,4 +397,11 @@ void MainWindow::on_saveToToolButton_clicked()
         ui->levelSaveToEdit->setText(savePath);
     }
 }
+
+
+void MainWindow::on_actionPlace_all_rooms_triggered()
+{
+
+}
+
 

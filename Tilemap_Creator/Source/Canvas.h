@@ -23,6 +23,7 @@
 #include <set>
 #include <QTimer>
 #include <vector>
+#include "RoomLink.h"
 
 namespace CanvasDefaults
 {
@@ -65,6 +66,9 @@ public slots:
     void slotRoomSizeXValueChanged(int);
     void slotRoomSizeYValueChanged(int);
 
+    void slotEnablePlaceRooms(bool);
+    void slotEnableLinkRooms(bool);
+
 protected:
     void paintEvent(QPaintEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
@@ -81,20 +85,17 @@ private:
     void zoomCanvasImage(int delta);
     void scrollCanvasBars(int delta);
     void mouseMarkerReference(const QPoint& reference);
-
     void drawGridLines(QPainter& painter);
     void drawPlacementMarker(QPainter& painter);
-
-    void drawPlacements(QPainter& painter);
-
+    void drawPlacedRooms(QPainter& painter);
     bool canPlaceRoom(QRect&& rect) const;
-
     QPoint mousePositionWithinImage() const;
-
     bool withinCanvasImage(int x, int y) const;
-
     void placeRoom(int rx, int ry);
     void removeRoom();
+    void drawRoomLinks(QPainter& painter);
+    void recalculateRoomLinks();
+
 
     QImage m_image;
     double m_scale{CanvasDefaults::DEFAULT_CANVAS_SCALE};
@@ -110,14 +111,16 @@ private:
     int m_gridX{CanvasDefaults::DEFAULT_GRID_X};
     int m_gridY{CanvasDefaults::DEFAULT_GRID_Y};
 
-    bool m_drawPlacementMarker{true};
+    bool m_placeRooms{false};
     int m_roomSizeX{CanvasDefaults::DEFAULT_ROOM_X};
     int m_roomSizeY{CanvasDefaults::DEFAULT_ROOM_Y};
 
+    bool m_linkRooms{false};
 
     MapRooms m_rooms;
 
-
     bool m_snapToGrid{false};
+
+    RoomLink::RoomLinkMap m_roomLinkMap;
 };
 

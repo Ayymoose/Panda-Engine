@@ -16,9 +16,13 @@
 #pragma once
 
 #include <QMainWindow>
+#include <QAction>
+#include <QLabel>
+#include <QString>
+
 #include "About.h"
 #include "Canvas.h"
-#include "qlabel.h"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -41,6 +45,8 @@ signals:
     void signalGridYValueChanged(int);
     void signalRoomSizeXValueChanged(int);
     void signalRoomSizeYValueChanged(int);
+    void signalEnablePlaceRooms(bool);
+    void signalEnableLinkRooms(bool);
 
 
 public slots:
@@ -64,6 +70,11 @@ private slots:
     void slotGridYValueChanged(int);
     void slotGridXValueChanged(int);
 
+    void on_actionPlace_all_rooms_triggered();
+
+    void slotPlaceRoomsToggled(bool);
+    void slotLinkRoomsToggled(bool);
+
 private:
 
     void connectSignals();
@@ -71,6 +82,9 @@ private:
     void connectCanvasSignals();
 
     void setupDefaults();
+    void setupCanvas();
+    void setupStatusBar();
+    void setupToolbar();
 
     Ui::MainWindow *ui;
     About m_about;
@@ -79,5 +93,9 @@ private:
     QLabel m_mouseLabel;
     QLabel m_statusLabel;
     QLabel m_dimensionLabel;
+
+    QAction m_placeRoomsAction;
+    QAction m_linkRoomsAction;
+
 };
 

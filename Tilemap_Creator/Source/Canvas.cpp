@@ -19,12 +19,12 @@
 #include <QGuiApplication>
 #include <QScrollBar>
 
-
 Canvas::Canvas(QWidget *parent)
     : QWidget(parent)
 {
     m_image.load(R"(D:\Users\Ayman\Desktop\lacpp\Resources\Background\Dungeon\dungeon_tail_cave.png)");
     m_cursorImage.load(":/Images/move_all_cursor.png");
+
     connect(&m_mouseMoveTimer, &QTimer::timeout, this, &Canvas::middleMouseScrollBars);
     setMouseTracking(true);
 }
@@ -57,36 +57,109 @@ void Canvas::slotMoveMouseReferenceV(int dy)
     m_reference.ry() += dy;
 }
 
+void Canvas::slotEnablePlaceRooms(bool enablePlaceRooms)
+{
+    m_placeRooms = enablePlaceRooms;
+}
+
+void Canvas::recalculateRoomLinks()
+{
+    if (m_linkRooms)
+    {
+        // TODO: Have varying offsets
+        m_roomLinkMap = RoomLink::linkRooms(m_rooms, 0);
+    }
+    else
+    {
+        m_roomLinkMap.clear();
+    }
+}
+
+void Canvas::slotEnableLinkRooms(bool enableLinkRooms)
+{
+    m_linkRooms = enableLinkRooms;
+    recalculateRoomLinks();
+}
+
 void Canvas::paintEvent(QPaintEvent*)
 {
     if (!m_image.isNull())
     {
-        QPainter painter(this);
+        QPainter painter;
+        painter.begin(this);
 
+        // Scale co-ordinate system to allow zooming
         painter.scale(m_scale, m_scale);
 
+        // Draw loaded image
         drawCanvasImage(painter);
-        // TODO: Remove once bug fixed in mainwindow
+
+        // Show scrolling cursor
         if (m_middleMouseButtonHeld)
         {
             drawMouseScrollCursor(painter);
         }
 
+        // Grid lines
         if (m_enableGrid)
         {
             drawGridLines(painter);
         }
 
-        if (m_drawPlacementMarker)
+        // Room placement marker
+        if (m_placeRooms)
         {
             drawPlacementMarker(painter);
         }
 
-        drawPlacements(painter);
+        // Draw any placed rooms
+        drawPlacedRooms(painter);
+
+        // and links between rooms
+        drawRoomLinks(painter);
+
+        painter.end();
 
         update();
     }
 }
+
+void Canvas::drawRoomLinks(QPainter& painter)
+{
+    // Draw links between rooms as yellow blocks for high-contrast
+    painter.setBrush(QBrush(Qt::yellow));
+    painter.setOpacity(0.5);
+
+    // Only need to choose from 2 links to draw in either direction as they overlap
+    for (auto it = m_roomLinkMap.constBegin(); it != m_roomLinkMap.constEnd(); ++it)
+    {
+        auto const room = it.key();
+        auto const linkedRoom = it.value();
+        if (linkedRoom.up.has_value())
+        {
+            // TODO: This should be based on the tile dimensions
+            constexpr int LINK_HEIGHT = 32;
+            constexpr int LINK_WIDTH = 16;
+            auto const linkPosition = QRect((room.x() + (room.width() / 2)) - (LINK_WIDTH / 2),
+                                            room.y() - (LINK_HEIGHT / 2),
+                                            LINK_WIDTH,
+                                            LINK_HEIGHT);
+            painter.drawRect(linkPosition);
+        }
+        if (linkedRoom.left.has_value())
+        {
+            // TODO: This should be based on the tile dimensions
+            constexpr int LINK_HEIGHT = 16;
+            constexpr int LINK_WIDTH = 32;
+            auto const linkPosition = QRect(room.x() - (LINK_WIDTH / 2),
+                                            (room.y() + (room.height() / 2)) - (LINK_HEIGHT / 2),
+                                            LINK_WIDTH,
+                                            LINK_HEIGHT);
+            painter.drawRect(linkPosition);
+        }
+    }
+}
+
 
 QPoint Canvas::mousePositionWithinImage() const
 {
@@ -106,9 +179,9 @@ QPoint Canvas::mousePositionWithinImage() const
 
 bool Canvas::canPlaceRoom(QRect&& rect) const
 {
-    for (auto const& placementRect : m_rooms)
+    for (auto const& room : m_rooms)
     {
-        if (placementRect.intersects(rect))
+        if (room.intersects(rect))
         {
             return false;
         }
@@ -194,7 +267,7 @@ Canvas::MapRooms Canvas::rooms() const
     return m_rooms;
 }
 
-void Canvas::drawPlacements(QPainter& painter)
+void Canvas::drawPlacedRooms(QPainter& painter)
 {
     painter.setOpacity(0.5);
     painter.setBrush(QBrush(Qt::blue));
@@ -262,6 +335,7 @@ void Canvas::mousePressEvent(QMouseEvent *event)
         switch(event->button())
         {
         case Qt::LeftButton:
+            if (m_placeRooms)
             {
                 auto const mouseCoords = mousePositionWithinImage();
                 auto mx = mouseCoords.x();
@@ -269,11 +343,18 @@ void Canvas::mousePressEvent(QMouseEvent *event)
                 if (withinCanvasImage(mx + m_roomSizeX, my + m_roomSizeY) && canPlaceRoom(QRect(mx, my, m_roomSizeX, m_roomSizeY)))
                 {
                     placeRoom(mx , my);
+                    // TODO: Place individual room links
+                    recalculateRoomLinks();
                 }
             }
             break;
         case Qt::RightButton:
-            removeRoom();
+            if (m_placeRooms)
+            {
+                removeRoom();
+                // TODO: Remove individual room links
+                recalculateRoomLinks();
+            }
             break;
         case Qt::MiddleButton:
             mouseMarkerReference(event->pos());
@@ -390,6 +471,7 @@ bool Canvas::loadImage(const QString& imagePath)
     bool loaded = m_image.load(imagePath);
     if (loaded)
     {
+        m_roomLinkMap.clear();
         m_rooms.clear();
         m_scale = CanvasDefaults::DEFAULT_CANVAS_SCALE;
         setMinimumSize(m_image.width(), m_image.height());

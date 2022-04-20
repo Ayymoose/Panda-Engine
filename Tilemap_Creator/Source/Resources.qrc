@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/">
         <file>Images/move_all_cursor.png</file>
+        <file>Images/link.svg</file>
+        <file>Images/cursor.svg</file>
     </qresource>
 </RCC>
