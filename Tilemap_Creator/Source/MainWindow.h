@@ -48,6 +48,7 @@ signals:
     void signalRoomSizeYValueChanged(int);
     void signalEnablePlaceRooms(bool);
     void signalEnableLinkRooms(bool);
+    void signalPlaceAllRooms();
 
 
 public slots:

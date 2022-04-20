@@ -73,6 +73,7 @@ public slots:
 
     void slotEnablePlaceRooms(bool);
     void slotEnableLinkRooms(bool);
+    void slotPlaceAllRooms();
 
 protected:
     void paintEvent(QPaintEvent* event) override;

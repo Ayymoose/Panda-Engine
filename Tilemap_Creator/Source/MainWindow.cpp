@@ -114,6 +114,8 @@ void MainWindow::setupCanvas()
 
     connect(this, &MainWindow::signalEnablePlaceRooms, &m_canvas, &Canvas::slotEnablePlaceRooms);
     connect(this, &MainWindow::signalEnableLinkRooms, &m_canvas, &Canvas::slotEnableLinkRooms);
+
+    connect(this, &MainWindow::signalPlaceAllRooms, &m_canvas, &Canvas::slotPlaceAllRooms);
 }
 
 void MainWindow::setupStatusBar()
@@ -351,6 +353,7 @@ void MainWindow::on_generateTilemapButton_clicked()
 
     if (rooms.size())
     {
+        // TODO: Have tile dimensions spinboxes instead of relying on grid here
         Tilemap::TilemapConfig config;
         config.outputMapWidth = ui->mapWidthSpinBox->value();
         config.tileX = ui->gridXSpinBox->value();
@@ -408,7 +411,7 @@ void MainWindow::on_saveToToolButton_clicked()
 
 void MainWindow::on_actionPlace_all_rooms_triggered()
 {
-
+    emit signalPlaceAllRooms();
 }
 
 

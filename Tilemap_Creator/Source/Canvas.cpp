@@ -88,6 +88,7 @@ void Canvas::paintEvent(QPaintEvent*)
         painter.begin(this);
 
         // Scale co-ordinate system to allow zooming
+        Q_ASSERT(m_scale != 0);
         painter.scale(m_scale, m_scale);
 
         // Draw loaded image
@@ -477,4 +478,33 @@ bool Canvas::loadImage(const QString& imagePath)
         emit signalUpdateZoom(m_scale);
     }
     return loaded;
+}
+
+void Canvas::slotPlaceAllRooms()
+{
+    if (!m_image.isNull())
+    {
+        Q_ASSERT(m_roomSizeX != 0);
+        Q_ASSERT(m_roomSizeY != 0);
+
+        auto const roomsAcross = m_image.width() / m_roomSizeX;
+        auto const roomsDown = m_image.height() / m_roomSizeY;
+
+        for (auto ry = 0; ry < roomsDown; ++ry)
+        {
+            for (auto rx = 0; rx < roomsAcross; ++rx)
+            {
+                auto const rpx = rx * m_roomSizeX;
+                auto const rpy = ry * m_roomSizeY;
+
+                // Check if an existing room is where we want to put it
+                if (canPlaceRoom(QRect(rpx, rpy, m_roomSizeX, m_roomSizeY)))
+                {
+                    placeRoom(rpx, rpy);
+                }
+            }
+        }
+
+
+    }
 }
