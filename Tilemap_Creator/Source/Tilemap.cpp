@@ -74,8 +74,20 @@ Tilemap::GeneratedTileMap Tilemap::generate(const QImage& sourceImage, const Til
     // This will allow us to generate a tilemap with each area in the same place as on the image
     std::sort(rooms.begin(), rooms.end(), [](const QRect& r1, const QRect& r2)
     {
-        return (r1.top() < r2.top()) && (r1.left() < r2.left());
+        if (r1.top() < r2.top())
+        {
+            return true;
+        }
+        else if (r1.top() == r2.top())
+        {
+            return r1.left() < r2.left();
+        }
+        else
+        {
+            return false;
+        }
     });
+
 
     // Construct the tile set from all the areas
     size_t tileIndex = 0;
