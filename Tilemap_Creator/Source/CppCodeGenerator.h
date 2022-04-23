@@ -19,5 +19,6 @@
 
 class CppCodeGenerator : public CodeGenerator
 {
-    void generate(QTextStream& out, const std::vector<Tilemap::TileArea>& tilemapArea) const override;
+    void generateRooms(QTextStream& out, const std::vector<Tilemap::TileArea>& tilemapArea) const override;
+    void generateRoomLinks(QTextStream& out, const RoomLink::LinkedRoomMap& roomLinkMap) const override;
 };

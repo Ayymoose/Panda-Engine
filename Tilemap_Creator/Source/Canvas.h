@@ -54,6 +54,7 @@ public:
     using MapRooms = std::vector<QRect>;
 
     MapRooms rooms() const;
+    RoomLink::LinkedRoomMap roomLinks() const;
 
 signals:
     void signalScrollBars(int, int);
@@ -128,6 +129,6 @@ private:
 
     bool m_snapToGrid{false};
 
-    RoomLink::RoomLinkMap m_roomLinkMap;
+    RoomLink::LinkedRoomMap m_roomLinkMap;
 };
 

@@ -16,7 +16,7 @@
 #include "CppCodeGenerator.h"
 #include <QTextStream>
 
-void CppCodeGenerator::generate(QTextStream& out, const std::vector<Tilemap::TileArea>& tileAreas) const
+void CppCodeGenerator::generateRooms(QTextStream& out, const std::vector<Tilemap::TileArea>& tileAreas) const
 {
     // TODO: Have code generator set from file so we don't have to recompile binary each time we
     // want to change the format
@@ -26,8 +26,6 @@ void CppCodeGenerator::generate(QTextStream& out, const std::vector<Tilemap::Til
     out << "// ALL CHANGES WILL BE UNDONE! DO NOT EDIT!" "\n";
 
     // Generate room information
-    out << "TilemapInformation ti;" "\n";
-    out << "ti.rooms = " "\n";
     out << "{" "\n";
 
     for (auto const& tileArea : tileAreas)
@@ -53,8 +51,10 @@ void CppCodeGenerator::generate(QTextStream& out, const std::vector<Tilemap::Til
     }
 
     out << "};" "\n";
-    out << "ti.roomsAcross = " "\n";
-    out << "ti.roomsDown = " "\n";
-    out << "ti.tilemap = " "\n";
+}
+
+void CppCodeGenerator::generateRoomLinks(QTextStream& out, const RoomLink::LinkedRoomMap& roomLinkMap) const
+{
+
 }
 

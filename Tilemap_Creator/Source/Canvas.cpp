@@ -267,6 +267,11 @@ Canvas::MapRooms Canvas::rooms() const
     return m_rooms;
 }
 
+RoomLink::LinkedRoomMap Canvas::roomLinks() const
+{
+    return m_roomLinkMap;
+}
+
 void Canvas::drawPlacedRooms(QPainter& painter)
 {
     painter.setOpacity(0.5);

@@ -369,4 +369,118 @@ void RoomLinkTest::runTests()
             CHECK_EQUAL((*room).left.has_value(), false);
         }
     }
+
+    // Room link association tests
+    {
+        {
+            // Single room on its own
+            std::vector<QRect> rooms =
+            {
+                {0,0,160,128},
+            };
+
+            auto const linkedRoomMap = RoomLink::linkRooms(rooms, 0);
+            REQUIRE_EQUAL(linkedRoomMap.size(), 1);
+
+            auto const roomLinkMap = RoomLink::associateRoomsWithLinks(rooms, linkedRoomMap);
+            REQUIRE_EQUAL(roomLinkMap.size(), 1);
+
+            auto const key = roomLinkMap.find(0);
+            auto const roomLink = key->second;
+            CHECK_EQUAL(roomLink.down, -1);
+            CHECK_EQUAL(roomLink.up, -1);
+            CHECK_EQUAL(roomLink.left, -1);
+            CHECK_EQUAL(roomLink.right, -1);
+        }
+        {
+            // Unconnected rooms
+            std::vector<QRect> rooms =
+            {
+                {0,0,160,128},
+                {180,0,160,128},
+            };
+
+            auto const linkedRoomMap = RoomLink::linkRooms(rooms, 0);
+            REQUIRE_EQUAL(linkedRoomMap.size(), 2);
+
+            auto const roomLinkMap = RoomLink::associateRoomsWithLinks(rooms, linkedRoomMap);
+            REQUIRE_EQUAL(roomLinkMap.size(), 2);
+
+            auto key = roomLinkMap.find(0);
+            auto roomLink = key->second;
+            CHECK_EQUAL(roomLink.down, -1);
+            CHECK_EQUAL(roomLink.up, -1);
+            CHECK_EQUAL(roomLink.left, -1);
+            CHECK_EQUAL(roomLink.right, -1);
+
+            key = roomLinkMap.find(1);
+            roomLink = key->second;
+            CHECK_EQUAL(roomLink.down, -1);
+            CHECK_EQUAL(roomLink.up, -1);
+            CHECK_EQUAL(roomLink.left, -1);
+            CHECK_EQUAL(roomLink.right, -1);
+        }
+        {
+            // Connected rooms
+            std::vector<QRect> rooms =
+            {
+                {0,0,160,128},      // Center
+                {160,0,160,128},    // Right
+                {-160,0,160,128},   // Left
+                {0,128,160,128},    // Down
+                {0,-128,160,128}    // Up
+            };
+
+            auto const linkedRoomMap = RoomLink::linkRooms(rooms, 0);
+            REQUIRE_EQUAL(linkedRoomMap.size(), 5);
+
+            auto const roomLinkMap = RoomLink::associateRoomsWithLinks(rooms, linkedRoomMap);
+            REQUIRE_EQUAL(roomLinkMap.size(), 5);
+
+            auto key = roomLinkMap.find(0);
+            auto roomLink = key->second;
+
+            // Center room has all rooms
+            CHECK_EQUAL(roomLink.down, 3);
+            CHECK_EQUAL(roomLink.up, 4);
+            CHECK_EQUAL(roomLink.left, 2);
+            CHECK_EQUAL(roomLink.right, 1);
+
+            // Right room should only have center on left
+            key = roomLinkMap.find(1);
+            roomLink = key->second;
+
+            CHECK_EQUAL(roomLink.down, -1);
+            CHECK_EQUAL(roomLink.up, -1);
+            CHECK_EQUAL(roomLink.left, 0);
+            CHECK_EQUAL(roomLink.right, -1);
+
+            // Left room should only have center on right
+            key = roomLinkMap.find(2);
+            roomLink = key->second;
+
+            CHECK_EQUAL(roomLink.down, -1);
+            CHECK_EQUAL(roomLink.up, -1);
+            CHECK_EQUAL(roomLink.left, -1);
+            CHECK_EQUAL(roomLink.right, 0);
+
+            // Down room should only have center on up
+            key = roomLinkMap.find(3);
+            roomLink = key->second;
+
+            CHECK_EQUAL(roomLink.down, -1);
+            CHECK_EQUAL(roomLink.up, 0);
+            CHECK_EQUAL(roomLink.left, -1);
+            CHECK_EQUAL(roomLink.right, -1);
+
+            // Up room should only have center on down
+            key = roomLinkMap.find(4);
+            roomLink = key->second;
+            CHECK_EQUAL(roomLink.down, 0);
+            CHECK_EQUAL(roomLink.up, -1);
+            CHECK_EQUAL(roomLink.left, -1);
+            CHECK_EQUAL(roomLink.right, -1);
+        }
+    }
+
 }

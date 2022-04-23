@@ -32,14 +32,27 @@ public:
         std::optional<QRect> down;
     };
 
-    using RoomLinkMap = QHash<QRect, LinkedRoom>;
+    using RoomIndex = int;
+
+    struct RoomLinkIndex
+    {
+        RoomIndex left;
+        RoomIndex right;
+        RoomIndex up;
+        RoomIndex down;
+    };
+
+    using LinkedRoomMap = QHash<QRect, LinkedRoom>;
+    using RoomLinkMap = std::unordered_map<RoomIndex, RoomLinkIndex>;
 
     // Given a set of rooms, links them together such that each room will be linked to [0,4] other rooms
     // Assumes that rooms do NOT overlap each other
     // Assumes rooms are NOT rotated at an angle
     // Assumes rooms are all the same size (TODO: Adapt to rooms of different sizes)
     // Returns a map for each room to a vector of rooms that it links to
-    static RoomLinkMap linkRooms(const std::vector<QRect>& rooms, const int offset);
+    static LinkedRoomMap linkRooms(const std::vector<QRect>& rooms, const int offset);
+
+    static RoomLinkMap associateRoomsWithLinks(const std::vector<QRect>& rooms, const LinkedRoomMap& linkedRoomMap);
 
     enum class RoomPosition
     {

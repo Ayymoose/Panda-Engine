@@ -361,7 +361,8 @@ void MainWindow::on_generateTilemapButton_clicked()
         config.tileY = ui->gridYSpinBox->value();
 
         auto const& [generatedAreas, generatedTileMap] = Tilemap::generate(m_canvas.canvasImage(), config, rooms);
-        auto const generatedCodeFilePath = QFileInfo(savePath).path() + DEFAULT_TILEMAP_NAME + ".txt";
+        // TODO: Bug DEFAULT_TILEMAP_NAME is not supposed to be used here we need the UI text
+                auto const generatedCodeFilePath = QFileInfo(savePath).path() + DEFAULT_TILEMAP_NAME + ".txt";
         auto generatedCodeFile = QFile(generatedCodeFilePath);
 
         // TODO: Have SUCCESSFULLY appear in green color and FAILED in red
@@ -370,7 +371,10 @@ void MainWindow::on_generateTilemapButton_clicked()
             // TODO: Have option to select code generator
             QTextStream out(&generatedCodeFile);
             std::unique_ptr<CodeGenerator> codeGenerator = std::make_unique<CppCodeGenerator>();
-            codeGenerator->generate(out, generatedAreas);
+            codeGenerator->generateRooms(out, generatedAreas);
+            //codeGenerator->generateRoomLinks(out, m_canvas.roomLinks());
+
+
             generatedCodeFile.close();
             status += "SUCCESSFULLY saved generated code to: " + generatedCodeFilePath;
             status += '\t';

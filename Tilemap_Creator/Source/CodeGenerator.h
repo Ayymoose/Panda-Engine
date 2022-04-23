@@ -16,11 +16,13 @@
 #pragma once
 
 #include "Tilemap.h"
+#include "RoomLink.h"
 #include "Version.h"
 
 class CodeGenerator
 {
 public:
-    virtual void generate(QTextStream& out, const std::vector<Tilemap::TileArea>& tilemapArea) const = 0;
+    virtual void generateRooms(QTextStream& out, const std::vector<Tilemap::TileArea>& tilemapArea) const = 0;
+    virtual void generateRoomLinks(QTextStream& out, const RoomLink::LinkedRoomMap& roomLinkMap) const = 0;
     virtual ~CodeGenerator() = default;
 };

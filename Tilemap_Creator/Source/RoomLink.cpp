@@ -14,6 +14,48 @@
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "RoomLink.h"
+#include <iterator>
+
+RoomLink::RoomLinkMap RoomLink::associateRoomsWithLinks(const std::vector<QRect>& rooms, const LinkedRoomMap& linkedRoomMap)
+{
+    // Creates a map of rooms to accessible room indices
+    RoomLinkMap roomLinkMap;
+
+    auto findRoomIndex = [&rooms](const QRect& room)
+    {
+        // Room in LinkRoomMap must exist in rooms list
+        auto const thisRoom = std::find(rooms.cbegin(), rooms.cend(), room);
+        Q_ASSERT(thisRoom != rooms.cend());
+
+        // Find index of this room
+        auto index = std::distance(rooms.cbegin(), thisRoom);
+        Q_ASSERT(index >= 0);
+
+        return index;
+    };
+
+    // For each room in linkedRoomMap (key), find the index in rooms
+    for (auto lit = linkedRoomMap.cbegin(); lit != linkedRoomMap.cend(); ++lit)
+    {
+        auto const thisIndex = findRoomIndex(lit.key());
+
+        // This must be the first time only
+        Q_ASSERT(roomLinkMap.count(thisIndex) == 0);
+
+        // Now fill in the indices of the other rooms
+        RoomLinkIndex roomLinkIndex;
+        auto const linkedRoom = lit.value();
+
+        // -1 if no room association otherwise room index into array
+        roomLinkIndex.down = (linkedRoom.down.has_value() ? findRoomIndex(linkedRoom.down.value()) : -1);
+        roomLinkIndex.up = (linkedRoom.up.has_value() ? findRoomIndex(linkedRoom.up.value()) : -1);
+        roomLinkIndex.left = (linkedRoom.left.has_value() ? findRoomIndex(linkedRoom.left.value()) : -1);
+        roomLinkIndex.right = (linkedRoom.right.has_value() ? findRoomIndex(linkedRoom.right.value()) : -1);
+        roomLinkMap[thisIndex] = roomLinkIndex;
+    }
+
+    return roomLinkMap;
+}
 
 bool RoomLink::roomPosition(const QRect& thisRoom, RoomPosition roomPosition, const QRect& thatRoom, const int offset)
 {
@@ -88,12 +130,12 @@ bool RoomLink::roomPosition(const QRect& thisRoom, RoomPosition roomPosition, co
     return false;
 }
 
-RoomLink::RoomLinkMap RoomLink::linkRooms(const std::vector<QRect>& rooms, const int offset)
+RoomLink::LinkedRoomMap RoomLink::linkRooms(const std::vector<QRect>& rooms, const int offset)
 {
     // Rooms must be next to each other
     Q_ASSERT(offset >= 0);
 
-    RoomLinkMap roomLinkMap;
+    LinkedRoomMap roomLinkMap;
 
     // Check no rooms overlap each other
     for (auto rit = rooms.cbegin(); rit != rooms.cend(); ++rit)
