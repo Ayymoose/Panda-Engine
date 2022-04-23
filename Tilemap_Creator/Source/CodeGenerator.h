@@ -23,6 +23,6 @@ class CodeGenerator
 {
 public:
     virtual void generateRooms(QTextStream& out, const std::vector<Tilemap::TileArea>& tilemapArea) const = 0;
-    virtual void generateRoomLinks(QTextStream& out, const RoomLink::LinkedRoomMap& roomLinkMap) const = 0;
+    virtual void generateRoomLinks(QTextStream& out, const RoomLink::RoomLinkMap& roomLinkMap) const = 0;
     virtual ~CodeGenerator() = default;
 };

@@ -26,6 +26,7 @@ void CppCodeGenerator::generateRooms(QTextStream& out, const std::vector<Tilemap
     out << "// ALL CHANGES WILL BE UNDONE! DO NOT EDIT!" "\n";
 
     // Generate room information
+    out << "// Tilemap information\n";
     out << "{" "\n";
 
     for (auto const& tileArea : tileAreas)
@@ -53,8 +54,16 @@ void CppCodeGenerator::generateRooms(QTextStream& out, const std::vector<Tilemap
     out << "};" "\n";
 }
 
-void CppCodeGenerator::generateRoomLinks(QTextStream& out, const RoomLink::LinkedRoomMap& roomLinkMap) const
+void CppCodeGenerator::generateRoomLinks(QTextStream& out, const RoomLink::RoomLinkMap& roomLinkMap) const
 {
+    // Generate room link information
+    out << "// Roomlink information\n";
+    out << "{" "\n";
 
+    for (auto const& [roomIndex, roomLink] : roomLinkMap)
+    {
+         out << '\t' << '{' << roomIndex << ',' << '{' << roomLink.left << ',' << roomLink.right << ',' << roomLink.up << ',' << roomLink.down << "}},\n";
+    }
+    out << "};" "\n";
 }
 

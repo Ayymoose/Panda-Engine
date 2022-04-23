@@ -19,6 +19,7 @@
 #include <QHash>
 #include <optional>
 #include <vector>
+#include <map>
 
 class RoomLink
 {
@@ -43,7 +44,7 @@ public:
     };
 
     using LinkedRoomMap = QHash<QRect, LinkedRoom>;
-    using RoomLinkMap = std::unordered_map<RoomIndex, RoomLinkIndex>;
+    using RoomLinkMap = std::map<RoomIndex, RoomLinkIndex>;
 
     // Given a set of rooms, links them together such that each room will be linked to [0,4] other rooms
     // Assumes that rooms do NOT overlap each other
