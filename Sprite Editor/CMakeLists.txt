@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(Spritesheet_Tool VERSION 0.1 LANGUAGES CXX)
+project(PandaSpriteEditor VERSION 0.1 LANGUAGES CXX)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -28,7 +28,7 @@ set(PROJECT_SOURCES
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(Spritesheet_Tool
+    qt_add_executable(PandaSpriteEditor
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
     )
@@ -38,22 +38,21 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 # For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
 else()
     if(ANDROID)
-        add_library(Spritesheet_Tool SHARED
+        add_library(PandaSpriteEditor SHARED
             ${PROJECT_SOURCES}
         )
 # Define properties for Android with Qt 5 after find_package() calls as:
 #    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
     else()
-        add_executable(Spritesheet_Tool
+        add_executable(PandaSpriteEditor
             ${PROJECT_SOURCES}
         )
     endif()
 endif()
 
-target_link_libraries(Spritesheet_Tool PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(PandaSpriteEditor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
-set_target_properties(Spritesheet_Tool PROPERTIES
-    MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
+set_target_properties(PandaSpriteEditor PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
     MACOSX_BUNDLE TRUE
@@ -61,5 +60,5 @@ set_target_properties(Spritesheet_Tool PROPERTIES
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(Spritesheet_Tool)
+    qt_finalize_executable(PandaSpriteEditor)
 endif()
