@@ -18,13 +18,7 @@ set(PROJECT_SOURCES
         Main.cpp
         MainWindow.cpp
         MainWindow.h
-        NewLayer.h
-        NewLayer.cpp
-        TransparencyColour.h
-        TransparencyColour.cpp
-        TransparencyColour.ui
         MainWindow.ui
-        NewLayer.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
