@@ -19,6 +19,14 @@ set(PROJECT_SOURCES
         MainWindow.cpp
         MainWindow.h
         MainWindow.ui
+        IntegerLineEdit.cpp
+        IntegerLineEdit.h
+        FlashLineEdit.h
+        FlashLineEdit.cpp
+        AddReferenceWindow.cpp
+        AddReferenceWindow.h
+        AddReferenceWindow.ui
+        MinMax.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
