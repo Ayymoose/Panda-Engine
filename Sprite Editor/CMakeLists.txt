@@ -27,6 +27,9 @@ set(PROJECT_SOURCES
         AddReferenceWindow.h
         AddReferenceWindow.ui
         MinMax.h
+        Application.h
+        Application.cpp
+        Resources.qrc
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
