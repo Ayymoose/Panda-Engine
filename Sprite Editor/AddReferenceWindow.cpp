@@ -49,19 +49,5 @@ AddReferenceWindow::AddReferenceWindow(const QString& windowTextReference,
 
     setWindowTitle("Add reference for " + windowTextReference);
 
-
     m_referenceFlashLineEdit = std::make_unique<PandaSpriteEditor::FlashLineEdit>(*ui->_referenceLineEdit, 250,2);
-
-
-    // FlashWidget(QLineEdit*, int interval, int count);
-    // start();
-    // stop();
-
-    /*
-
-
-    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &AddReferenceWindow::onOkButtonClicked);
-
-    */
-
 }
