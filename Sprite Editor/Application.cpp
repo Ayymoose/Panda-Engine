@@ -4,13 +4,10 @@
 #include <QIcon>
 
 #include "Application.h"
+#include "AboutWindow.h"
+#include "Build.h"
 
 using namespace PandaSpriteEditor;
-
-namespace
-{
-    const QString APP_NAME = "Panda Sprite Editor";
-};
 
 Application::Application(int argc, char* argv[]) :
     m_application(std::make_unique<QApplication>(argc, argv)),
@@ -21,7 +18,9 @@ Application::Application(int argc, char* argv[]) :
 
 void Application::showWindow()
 {
-    m_applicationWindow->show();
+    //m_applicationWindow->show();
+    //auto aw = new AboutWindow;
+    //aw->show();
 }
 
 void Application::setIcon()
