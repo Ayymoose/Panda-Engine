@@ -15,20 +15,28 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
+        # Source
         Main.cpp
         MainWindow.cpp
-        MainWindow.h
-        MainWindow.ui
+        AboutWindow.cpp
         IntegerLineEdit.cpp
+        AddReferenceWindow.cpp
+        Application.cpp
+        FlashLineEdit.cpp
+        # Header
+        MainWindow.h
+        AboutWindow.h
         IntegerLineEdit.h
         FlashLineEdit.h
-        FlashLineEdit.cpp
-        AddReferenceWindow.cpp
         AddReferenceWindow.h
-        AddReferenceWindow.ui
         MinMax.h
+        Build.h
         Application.h
-        Application.cpp
+        # UI
+        MainWindow.ui
+        AddReferenceWindow.ui
+        AboutWindow.ui
+        # Resources
         Resources.qrc
 )
 

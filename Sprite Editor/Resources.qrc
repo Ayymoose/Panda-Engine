@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
         <file>Images/app_icon16x16.png</file>
+        <file>Images/app_about128x128.png</file>
     </qresource>
 </RCC>
