@@ -23,6 +23,8 @@ set(PROJECT_SOURCES
         AddReferenceWindow.cpp
         Application.cpp
         FlashLineEdit.cpp
+        AddLayerWindow.cpp
+        ColourPicker.cpp
         # Header
         MainWindow.h
         AboutWindow.h
@@ -32,10 +34,13 @@ set(PROJECT_SOURCES
         MinMax.h
         Build.h
         Application.h
+        AddLayerWindow.h
+        ColourPicker.h
         # UI
         MainWindow.ui
         AddReferenceWindow.ui
         AboutWindow.ui
+        AddLayerWindow.ui
         # Resources
         Resources.qrc
 )
